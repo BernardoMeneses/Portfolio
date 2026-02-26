@@ -1,0 +1,171 @@
+@use '../../Styles/variables' as *;
+@use '../../Styles/mixins' as *;
+
+.contact {
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(108, 99, 255, 0.05) 0%, transparent 50%),
+    $dark-bg;
+
+  .contact-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-xl;
+    align-items: start;
+  }
+
+  .contact-info {
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: $primary-text;
+      margin-bottom: $spacing-sm;
+    }
+
+    p {
+      color: $secondary-text;
+      line-height: 1.6;
+      margin-bottom: $spacing-lg;
+    }
+
+    .contact-methods {
+      margin-bottom: $spacing-lg;
+
+      .contact-method {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        margin-bottom: $spacing-sm;
+
+        i {
+          width: 20px;
+          color: $primary;
+          font-size: 1.1rem;
+        }
+
+        span {
+          color: $secondary-text;
+        }
+      }
+    }
+
+    .social-links {
+      display: flex;
+      gap: $spacing-sm;
+
+      a {
+        width: 50px;
+        height: 50px;
+        @include flex-center;
+        background: rgba(108, 99, 255, 0.1);
+        border: 1px solid rgba(108, 99, 255, 0.3);
+        border-radius: $border-radius-md;
+        color: $primary;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: $primary;
+          color: $primary-text;
+          transform: translateY(-3px);
+          box-shadow: $shadow-medium;
+        }
+      }
+    }
+  }
+
+  .contact-form {
+    @include card;
+
+    .submit-status {
+      padding: $spacing-sm;
+      border-radius: $border-radius-sm;
+      margin-bottom: $spacing-md;
+      font-size: 0.9rem;
+      font-weight: 500;
+
+      &.success {
+        background: rgba(0, 184, 148, 0.1);
+        border: 1px solid rgba(0, 184, 148, 0.3);
+        color: #00b894;
+      }
+
+      &.error {
+        background: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        color: #ff6b6b;
+      }
+    }
+
+    .form-group {
+      margin-bottom: $spacing-md;
+
+      input, textarea {
+        width: 100%;
+        padding: $spacing-sm;
+        background: rgba(108, 99, 255, 0.05);
+        border: 1px solid rgba(108, 99, 255, 0.2);
+        border-radius: $border-radius-sm;
+        color: $primary-text;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+
+        &:focus {
+          outline: none;
+          border-color: $primary;
+          box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+        }
+
+        &::placeholder {
+          color: $muted-text;
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
+    }
+
+    .submit-btn {
+      @include button-primary;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: $spacing-xs;
+      font-size: 1rem;
+
+      i {
+        transition: transform 0.3s ease;
+      }
+
+      &:hover:not(:disabled) i {
+        transform: translateX(5px);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .contact-content {
+      grid-template-columns: 1fr;
+      gap: $spacing-md;
+    }
+
+    .contact-info {
+      .social-links {
+        justify-content: center;
+      }
+    }
+  }
+}

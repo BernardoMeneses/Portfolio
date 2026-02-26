@@ -1,0 +1,92 @@
+@use '../../Styles/variables' as *;
+@use '../../Styles/mixins' as *;
+
+.skills {
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: $spacing-md;
+  }
+
+  .skill-card {
+    @include card;
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: $shadow-heavy;
+    }
+
+    .skill-icon {
+      width: 60px;
+      height: 60px;
+      @include flex-center;
+      background: transparent;
+      border-radius: $border-radius-md;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(2px);
+
+      img {
+        width: 70%;
+        height: 70%;
+        object-fit: contain;
+        display: block;
+        background: transparent;
+      }
+    }
+
+    .skill-info {
+      flex: 1;
+
+      .skill-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: $primary-text;
+        margin-bottom: $spacing-xs;
+      }
+
+      .skill-bar {
+        background: rgba(108, 99, 255, 0.1);
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: $spacing-xs;
+
+        .skill-progress {
+          height: 100%;
+          background: linear-gradient(135deg, $primary, $accent);
+          border-radius: 4px;
+          transition: width 1s ease-in-out;
+        }
+      }
+
+      .skill-level {
+        font-size: 0.9rem;
+        color: $muted-text;
+        font-weight: 500;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .skills-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .section-title--ai {
+    margin-top: 2.5rem;
+    text-align: center;
+    color: $primary;
+  }
+  .section-title--center {
+    margin-top: 2.5rem;
+    text-align: center;
+    color: $primary;
+  }
+}

@@ -1,0 +1,118 @@
+@use '../../Styles/variables' as *;
+@use '../../Styles/mixins' as *;
+
+.portfolio {
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(162, 89, 255, 0.05) 0%, transparent 50%),
+    $dark-bg;
+
+  .loading, .error {
+    text-align: center;
+    color: $secondary-text;
+    font-size: 1.1rem;
+    padding: $spacing-xl 0;
+  }
+
+  .error {
+    color: $secondary;
+  }
+
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: $spacing-lg;
+  }
+
+  .project-card {
+    @include card;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-10px);
+      box-shadow: $shadow-heavy;
+    }
+
+    .project-image {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+      margin: (-$spacing-md) (-$spacing-md) $spacing-md (-$spacing-md);
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      .project-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(10, 10, 15, 0.8);
+        @include flex-center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+
+        .project-link {
+          @include button-primary;
+          display: flex;
+          align-items: center;
+          gap: $spacing-xs;
+          text-decoration: none;
+
+          i {
+            font-size: 1.2rem;
+          }
+        }
+      }
+
+      &:hover {
+        img {
+          transform: scale(1.1);
+        }
+
+        .project-overlay {
+          opacity: 1;
+        }
+      }
+    }
+
+    .project-content {
+      .project-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: $primary-text;
+        margin-bottom: $spacing-xs;
+      }
+
+      .project-description {
+        color: $secondary-text;
+        line-height: 1.6;
+        margin-bottom: $spacing-sm;
+      }
+
+      .project-tech {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-xs;
+
+        .tech-tag {
+          background: rgba(108, 99, 255, 0.1);
+          color: $primary;
+          padding: $spacing-xs $spacing-sm;
+          border-radius: $border-radius-sm;
+          font-size: 0.8rem;
+          font-weight: 500;
+          border: 1px solid rgba(108, 99, 255, 0.3);
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .portfolio-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

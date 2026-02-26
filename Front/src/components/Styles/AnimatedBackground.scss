@@ -1,0 +1,28 @@
+@use '../../Styles/variables' as *;
+
+.animated-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: transparent;
+    mix-blend-mode: screen;
+    opacity: 0.55;
+  }
+
+  @media (max-width: 768px) {
+    canvas { opacity: 0.35 }
+  }
+}
+
+/* ensure app content is above the animated background */
+.App {
+  position: relative;
+  z-index: 1;
+}

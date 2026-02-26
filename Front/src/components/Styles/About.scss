@@ -1,0 +1,74 @@
+@use '../../Styles/variables' as *;
+@use '../../Styles/mixins' as *;
+
+.about {
+  background: 
+    radial-gradient(circle at 80% 20%, rgba(108, 99, 255, 0.05) 0%, transparent 50%),
+    $dark-bg;
+
+  .about-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: $spacing-xl;
+    align-items: center;
+  }
+
+  .about-text {
+    p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: $secondary-text;
+      margin-bottom: $spacing-md;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .about-stats {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+
+    .stat-item {
+      @include card;
+      text-align: center;
+      padding: $spacing-md;
+
+      .stat-number {
+        display: block;
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, $primary, $accent);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: $spacing-xs;
+      }
+
+      .stat-label {
+        color: $secondary-text;
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .about-content {
+      grid-template-columns: 1fr;
+      gap: $spacing-md;
+    }
+
+    .about-stats {
+      flex-direction: row;
+      justify-content: center;
+
+      .stat-item {
+        flex: 1;
+        max-width: 120px;
+      }
+    }
+  }
+}

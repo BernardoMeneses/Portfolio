@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autenticação GitHub</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f, #1a1a2e);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background: rgba(26, 26, 46, 0.8);
+            padding: 40px;
+            border-radius: 15px;
+            border: 1px solid rgba(108, 99, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 400px;
+        }
+        .success {
+            color: #00b894;
+        }
+        .error {
+            color: #ff6b6b;
+        }
+        .spinner {
+            border: 3px solid rgba(108, 99, 255, 0.3);
+            border-top: 3px solid #6c63ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .user-info {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(108, 99, 255, 0.3);
+        }
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            border: 2px solid #6c63ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loading">
+            <div class="spinner"></div>
+            <h2>Processando autenticação...</h2>
+            <p>Aguarde enquanto verificamos os seus dados.</p>
+        </div>
+        
+        <div id="success" style="display: none;">
+            <h2 class="success">✅ Autenticação bem-sucedida!</h2>
+            <div class="user-info">
+                <img id="userAvatar" class="avatar" src="" alt="Avatar">
+                <h3 id="userName"></h3>
+                <p id="userLogin"></p>
+            </div>
+            <p>Pode fechar esta janela agora.</p>
+        </div>
+        
+        <div id="error" style="display: none;">
+            <h2 class="error">❌ Erro na autenticação</h2>
+            <p id="errorMessage">Ocorreu um erro durante a autenticação.</p>
+            <p>Tente novamente ou contacte o suporte.</p>
+        </div>
+    </div>
+
+    <script>
+        // Obter parâmetros da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Elementos do DOM
+        const loadingDiv = document.getElementById('loading');
+        const successDiv = document.getElementById('success');
+        const errorDiv = document.getElementById('error');
+        
+        function showSuccess(userData) {
+            loadingDiv.style.display = 'none';
+            successDiv.style.display = 'block';
+            
+            // Preencher dados do usuário
+            document.getElementById('userAvatar').src = userData.avatar_url || '';
+            document.getElementById('userName').textContent = userData.name || userData.login;
+            document.getElementById('userLogin').textContent = `@${userData.login}`;
+            
+            // Guardar dados no localStorage
+            localStorage.setItem('github_user', JSON.stringify(userData));
+            localStorage.setItem('github_token', userData.token);
+            
+            // Notificar a janela pai (se existir)
+            if (window.opener) {
+                window.opener.postMessage({
+                    type: 'github_auth_success',
+                    user: userData,
+                    token: userData.token
+                }, '*');
+            }
+            
+            // Fechar janela automaticamente após 2 segundos
+            setTimeout(() => {
+                window.close();
+            }, 2000);
+        }
+        
+        function showError(errorType, message = '') {
+            loadingDiv.style.display = 'none';
+            errorDiv.style.display = 'block';
+            
+            let errorMessage = 'Erro desconhecido na autenticação.';
+            
+            switch(errorType) {
+                case 'config_error':
+                    errorMessage = 'Erro de configuração do servidor.';
+                    break;
+                case 'invalid_state':
+                    errorMessage = 'Token de segurança inválido.';
+                    break;
+                case 'token_exchange_failed':
+                    errorMessage = 'Falha na troca de código por token.';
+                    break;
+                case 'no_access_token':
+                    errorMessage = 'Token de acesso não recebido.';
+                    break;
+                case 'user_data_failed':
+                    errorMessage = 'Falha ao obter dados do utilizador.';
+                    break;
+                case 'server_error':
+                    errorMessage = `Erro do servidor: ${message}`;
+                    break;
+                default:
+                    errorMessage = message || 'Erro desconhecido.';
+            }
+            
+            document.getElementById('errorMessage').textContent = errorMessage;
+            
+            // Fechar janela automaticamente após 5 segundos
+            setTimeout(() => {
+                window.close();
+            }, 5000);
+        }
+        
+        // Processar resposta
+        if (urlParams.get('success') === 'true') {
+            // Sucesso - extrair dados do usuário
+            const userData = {
+                login: urlParams.get('login'),
+                name: urlParams.get('name'),
+                avatar_url: urlParams.get('avatar_url'),
+                email: urlParams.get('email'),
+                token: urlParams.get('token')
+            };
+            
+            showSuccess(userData);
+        } else if (urlParams.get('error')) {
+            // Erro - mostrar mensagem de erro
+            const errorType = urlParams.get('error');
+            const message = urlParams.get('message');
+            showError(errorType, message);
+        } else {
+            // Não há parâmetros - erro genérico
+            showError('no_params', 'Nenhum parâmetro de resposta encontrado.');
+        }
+    </script>
+</body>
+</html>

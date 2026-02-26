@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google OAuth Callback</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        .loading {
+            display: block;
+        }
+        .success, .error {
+            display: none;
+        }
+        .success {
+            color: #2c5530;
+        }
+        .error {
+            color: #d32f2f;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .user-info {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .user-info img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="loading">
+            <h2>Processando autenticação Google...</h2>
+            <div class="spinner"></div>
+            <p>Por favor aguarde enquanto validamos sua autenticação.</p>
+        </div>
+        
+        <div class="success">
+            <h2>🎉 Autenticação Google realizada com sucesso!</h2>
+            <div class="user-info" id="userInfo"></div>
+            <p>Esta janela será fechada automaticamente em alguns segundos.</p>
+        </div>
+        
+        <div class="error">
+            <h2>❌ Erro na autenticação Google</h2>
+            <p id="errorMessage">Ocorreu um erro durante o processo de autenticação.</p>
+            <p>Pode fechar esta janela e tentar novamente.</p>
+        </div>
+    </div>
+
+    <script>
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const result = {};
+            for (let [key, value] of params) {
+                result[key] = value;
+            }
+            return result;
+        }
+
+        function showLoading() {
+            document.querySelector('.loading').style.display = 'block';
+            document.querySelector('.success').style.display = 'none';
+            document.querySelector('.error').style.display = 'none';
+        }
+
+        function showSuccess(userData) {
+            document.querySelector('.loading').style.display = 'none';
+            document.querySelector('.success').style.display = 'block';
+            document.querySelector('.error').style.display = 'none';
+            
+            // Mostrar informações do usuário
+            const userInfoDiv = document.getElementById('userInfo');
+            userInfoDiv.innerHTML = `
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    ${userData.picture ? `<img src="${userData.picture}" alt="Avatar">` : ''}
+                    <div>
+                        <strong>${userData.name || 'Usuário'}</strong><br>
+                        <span style="color: #666;">${userData.email || ''}</span>
+                    </div>
+                </div>
+                <div style="font-size: 14px; color: #666;">
+                    <p><strong>ID:</strong> ${userData.id || 'N/A'}</p>
+                    <p><strong>Email Verificado:</strong> ${userData.verified_email === 'true' ? 'Sim' : 'Não'}</p>
+                </div>
+            `;
+
+            // Guardar dados no localStorage
+            const userDataForStorage = {
+                provider: 'google',
+                id: userData.id,
+                email: userData.email,
+                name: userData.name,
+                picture: userData.picture,
+                verified_email: userData.verified_email,
+                token: userData.token,
+                authenticated_at: new Date().toISOString()
+            };
+            
+            localStorage.setItem('google_user', JSON.stringify(userDataForStorage));
+            localStorage.setItem('google_token', userData.token);
+            localStorage.setItem('auth_provider', 'google');
+            
+            // Notificar a janela pai (se existir)
+            if (window.opener) {
+                window.opener.postMessage({
+                    type: 'google_auth_success',
+                    user: userDataForStorage,
+                    token: userData.token
+                }, '*');
+            }
+            
+            // Fechar janela automaticamente após 2 segundos
+            setTimeout(() => {
+                window.close();
+            }, 2000);
+        }
+
+        function showError(errorType, message) {
+            document.querySelector('.loading').style.display = 'none';
+            document.querySelector('.success').style.display = 'none';
+            document.querySelector('.error').style.display = 'block';
+            
+            const errorMessages = {
+                'config_error': 'Configuração do Google OAuth não encontrada no servidor.',
+                'invalid_state': 'Parâmetro de segurança inválido. Tente novamente.',
+                'token_exchange_failed': 'Falha ao trocar código por token de acesso.',
+                'no_access_token': 'Token de acesso não recebido do Google.',
+                'user_data_failed': 'Falha ao obter dados do usuário do Google.',
+                'server_error': 'Erro interno do servidor.',
+                'access_denied': 'Acesso negado pelo usuário.'
+            };
+            
+            let errorText = errorMessages[errorType] || 'Erro desconhecido durante a autenticação.';
+            if (message) {
+                errorText += ` Detalhes: ${message}`;
+            }
+            
+            document.getElementById('errorMessage').textContent = errorText;
+            
+            // Fechar janela automaticamente após 5 segundos em caso de erro
+            setTimeout(() => {
+                window.close();
+            }, 5000);
+        }
+
+        // Processar parâmetros da URL ao carregar a página
+        window.onload = function() {
+            const params = getUrlParams();
+            
+            // Simular loading por 1 segundo para melhor UX
+            setTimeout(() => {
+                if (params.error) {
+                    showError(params.error, params.message);
+                } else if (params.success === 'true') {
+                    showSuccess(params);
+                } else {
+                    showError('unknown', 'Resposta inválida do servidor');
+                }
+            }, 1000);
+        };
+        
+        // Log para debug (pode ser removido em produção)
+        console.log('Google OAuth Callback - URL Params:', getUrlParams());
+    </script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+// Placeholder para a imagem do Bernardo Meneses
+// Substitua este arquivo por uma foto real do Bernardo (bernardo-photo.jpg)
+// Formato recomendado: JPG ou PNG, tamanho: 400x400px ou maior
+// A imagem deve ser quadrada para melhor resultado no avatar circular
