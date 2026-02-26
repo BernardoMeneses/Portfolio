@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import './Styles/Hero.scss'
 import profileImage from '../assets/eu.jpg'
 
@@ -25,12 +26,12 @@ const Hero = () => {
             </p>
             
             <div className="hero-buttons">
-              <a href="/portfolio" className="btn-primary">
+              <Link to="/portfolio" className="btn-primary">
                 View Projects
-              </a>
-              <a href="/contact" className="btn-outline">
+              </Link>
+              <Link to="/contact" className="btn-outline">
                 Let's Talk
-              </a>
+              </Link>
             </div>
             
             <div className="hero-socials">
