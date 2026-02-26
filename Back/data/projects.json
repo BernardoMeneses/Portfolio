@@ -1,0 +1,18 @@
+[
+  {
+    "title": "UTAD Projects",
+    "description": "Projects developed during my time at UTAD",
+    "repo": "https://github.com/BernardoMeneses/ProjetosUni",
+    "link": "",
+    "image": "https://www.utad.pt/wp-content/uploads/utad_logo.png",
+    "tech": ["C", "C++", "C#", "Java", "Python", "SQL"]
+  },
+  {
+    "title": "TriplanAI",
+    "description": "App to plan trips using AI developed to Eupasoft SA Sofware Solutions",
+    "repo": "https://github.com/BernardoMeneses/TriplanAI",
+    "link": "",
+    "image": "https://lh3.googleusercontent.com/MstD9hRlp6s0oYuISfBOLdNU8wkJmDWnfnZVzKxwdy7_qwTGl8dihOasLn6QtE15tGKc9sfdjFnUn-yaF5sIr4Y",
+    "tech": ["TypeScript", "Dart", "PostgreSQL", "Flutter", "NodeJS", "ExpressJS", "OpenAI API"]
+  }
+]

@@ -41,18 +41,44 @@ def init_database():
     print("⚠️  Database disabled - running without persistent storage.")
 
 def get_projects_from_db():
-    """Projects are provided by the frontend static JSON.
+    """Load projects from `Back/data/projects.json` (no DB).
 
-    For simplicity the backend does not load or serve projects anymore.
-    Frontend falls back to its local `Front/src/data/projects.json` when
-    the remote API is unavailable.
+    This function reads the static JSON bundled with the backend and
+    returns it. If the file is missing or invalid, return empty list.
     """
-    print("Info: Projects are served by the frontend; backend returns empty list.")
-    return []
+    try:
+        here = os.path.dirname(os.path.abspath(__file__))
+        projects_path = os.path.normpath(os.path.join(here, 'data', 'projects.json'))
+        with open(projects_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                return data
+            if isinstance(data, dict):
+                for k in ('projects', 'data', 'items'):
+                    if k in data and isinstance(data[k], list):
+                        return data[k]
+            return []
+    except Exception as e:
+        print(f"Could not load backend projects.json: {e}")
+        print(f"Tried path: {projects_path}")
+        return []
 
 def get_recommendations_from_db():
     # No persistent recommendations
     return []
+
+def get_skills_from_db():
+    """Load skills from `Back/data/skills.json` (no DB)."""
+    try:
+        here = os.path.dirname(os.path.abspath(__file__))
+        skills_path = os.path.normpath(os.path.join(here, 'data', 'skills.json'))
+        with open(skills_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data
+    except Exception as e:
+        print(f"Could not load backend skills.json: {e}")
+        print(f"Tried path: {skills_path}")
+        return {}
 
 def add_recommendation_to_db(*args, **kwargs):
     # No-op when DB removed
@@ -348,6 +374,12 @@ def get_projects():
 def get_recommendations():
     """Obter todas as recomendações da base de dados"""
     return get_recommendations_from_db()
+
+
+@app.get("/api/skills")
+def get_skills():
+    """Obter skills estáticos do backend"""
+    return get_skills_from_db()
 
 @app.post("/api/auth/github")
 async def verify_github_token(request: dict):

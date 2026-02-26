@@ -3,43 +3,34 @@ import './Styles/Portfolio.scss'
 import './Styles/ProjectCard.scss'
 import ProjectCard from './ProjectCard'
 import { API_URL } from '../config/api'
-import projectsData from '../data/projects.json'
+import { useCallback } from 'react'
 
 const Portfolio = () => {
-  const [projects, setProjects] = useState(projectsData)
-  const [loading, setLoading] = useState(false)
+  const [projects, setProjects] = useState([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  useEffect(() => {
-    // By default use the local `projects.json` (same logic as Skills).
-    // Only attempt a remote fetch when explicitly forced via env var.
-    const FORCE_REMOTE = import.meta.env.VITE_FORCE_REMOTE_PROJECTS === 'true'
-    if (!FORCE_REMOTE) return
-
-    // If API points to localhost, skip remote fetch and use local JSON
-    if (API_URL.includes('localhost')) return
-
+  const fetchProjects = useCallback(() => {
     setLoading(true)
     fetch(`${API_URL}/api/projects`)
       .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to fetch projects')
-        }
+        if (!response.ok) throw new Error('Failed to fetch projects')
         return response.json()
       })
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setProjects(data)
-        }
+        if (Array.isArray(data)) setProjects(data)
         setLoading(false)
       })
       .catch(err => {
-        console.warn('Could not fetch remote projects, using local data:', err)
-        // Only surface an error UI when the user explicitly forced remote fetch
-        if (FORCE_REMOTE) setError(err.message)
+        console.error('Error fetching projects from backend:', err)
+        setError(err.message)
         setLoading(false)
       })
   }, [])
+
+  useEffect(() => {
+    fetchProjects()
+  }, [fetchProjects])
 
   if (loading) {
     return (

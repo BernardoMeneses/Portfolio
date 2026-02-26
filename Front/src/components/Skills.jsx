@@ -1,12 +1,29 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import './Styles/Skills.scss'
-import skillsData from '../data/skills.json'
+import { API_URL } from '../config/api'
 
 const Skills = () => {
-  const skills = (skillsData && skillsData.stack) || []
-  const dbStack = (skillsData && skillsData.dbStack) || []
-  const tools = (skillsData && skillsData.tools) || []
-  const aiStack = (skillsData && skillsData.aiStack) || []
+  const [skills, setSkills] = useState([])
+  const [dbStack, setDbStack] = useState([])
+  const [tools, setTools] = useState([])
+  const [aiStack, setAiStack] = useState([])
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/skills`)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch skills')
+        return res.json()
+      })
+      .then(data => {
+        setSkills((data && data.stack) || [])
+        setDbStack((data && data.dbStack) || [])
+        setTools((data && data.tools) || [])
+        setAiStack((data && data.aiStack) || [])
+      })
+      .catch(err => {
+        console.error('Error fetching skills from backend:', err)
+      })
+  }, [])
 
   return (
     <section id="skills" className="skills section">
