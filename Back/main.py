@@ -30,30 +30,25 @@ GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "https://portfolio-backen
 # Configurações da base de dados
 DATABASE_PATH = os.getenv("DATABASE_PATH", "portfolio.db")
 
+# Caminho customizável para o arquivo projects.json (em deploys pode ser diferente)
+PROJECTS_PATH_ENV = os.getenv("PROJECTS_PATH")
+
+# Origens permitidas (CORS). Pode ser uma lista separada por vírgulas ou "*" para permitir todas.
+ALLOWED_ORIGINS_ENV = os.getenv("ALLOWED_ORIGINS")
+
 def init_database():
     # No database initialization required when DB removed
     print("⚠️  Database disabled - running without persistent storage.")
 
 def get_projects_from_db():
-    """Load projects from frontend static JSON as fallback (no DB)."""
-    try:
-        here = os.path.dirname(os.path.abspath(__file__))
-        # path from Back/ to Front/src/data/projects.json
-        projects_path = os.path.normpath(os.path.join(here, '..', 'Front', 'src', 'data', 'projects.json'))
-        with open(projects_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            if isinstance(data, list):
-                return data
-            # if object with array key, try common keys
-            if isinstance(data, dict):
-                # try 'projects' or top-level array
-                for k in ('projects', 'data', 'items'):
-                    if k in data and isinstance(data[k], list):
-                        return data[k]
-            return []
-    except Exception as e:
-        print(f"Could not load projects.json: {e}")
-        return []
+    """Projects are provided by the frontend static JSON.
+
+    For simplicity the backend does not load or serve projects anymore.
+    Frontend falls back to its local `Front/src/data/projects.json` when
+    the remote API is unavailable.
+    """
+    print("Info: Projects are served by the frontend; backend returns empty list.")
+    return []
 
 def get_recommendations_from_db():
     # No persistent recommendations
@@ -74,14 +69,28 @@ def save_contact_message(name: str, email: str, message: str, sent_by_email: boo
 
 app = FastAPI()
 
-# Configurar CORS para permitir requests do frontend
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
+# Resolver lista de origins para CORS a partir de variável de ambiente
+def _resolve_allowed_origins():
+    default = [
         "http://localhost:5173",
         "http://localhost:4698",
-        "https://bernardomeneses.fly.dev"
-    ],
+        "https://bernardomeneses.fly.dev",
+    ]
+    if not ALLOWED_ORIGINS_ENV:
+        return default
+    val = ALLOWED_ORIGINS_ENV.strip()
+    if val == "*":
+        return ["*"]
+    # split CSV e strip
+    parts = [p.strip() for p in val.split(",") if p.strip()]
+    return parts if parts else default
+
+allowed_origins = _resolve_allowed_origins()
+print(f"CORS allowed_origins: {allowed_origins}")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
