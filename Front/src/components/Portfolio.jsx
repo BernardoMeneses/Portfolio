@@ -11,6 +11,11 @@ const Portfolio = () => {
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    // By default use the local `projects.json` (same logic as Skills).
+    // Only attempt a remote fetch when explicitly forced via env var.
+    const FORCE_REMOTE = import.meta.env.VITE_FORCE_REMOTE_PROJECTS === 'true'
+    if (!FORCE_REMOTE) return
+
     // If API points to localhost, skip remote fetch and use local JSON
     if (API_URL.includes('localhost')) return
 
@@ -30,7 +35,8 @@ const Portfolio = () => {
       })
       .catch(err => {
         console.warn('Could not fetch remote projects, using local data:', err)
-        setError(err.message)
+        // Only surface an error UI when the user explicitly forced remote fetch
+        if (FORCE_REMOTE) setError(err.message)
         setLoading(false)
       })
   }, [])
