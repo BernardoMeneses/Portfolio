@@ -685,6 +685,73 @@ async def delete_skill(request: Request, payload: dict):
         print(f"Erro ao remover skill: {e}")
         raise HTTPException(status_code=500, detail="Erro ao remover skill")
 
+
+@app.put("/api/projects/{index}")
+async def edit_project(request: Request, index: int, project: Project):
+    """Edit a project at a given index in Back/data/projects.json (admin only)."""
+    try:
+        _validate_admin_token(request)
+        here = os.path.dirname(os.path.abspath(__file__))
+        projects_path = os.path.normpath(os.path.join(here, 'data', 'projects.json'))
+        with open(projects_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        if not isinstance(data, list):
+            raise HTTPException(status_code=400, detail='Projects file invalid')
+        if index < 0 or index >= len(data):
+            raise HTTPException(status_code=404, detail='Project index out of range')
+        project_dict = project.dict()
+        data[index] = project_dict
+        with open(projects_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"[project] Edited project at index {index}: {project_dict.get('title')}")
+        return {"message": "Projeto atualizado com sucesso", "project": project_dict}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Erro ao editar projeto: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao editar projeto")
+
+
+@app.put("/api/skills")
+async def edit_skill(request: Request, payload: dict):
+    """Edit a skill in Back/data/skills.json by category and existing name (admin only).
+
+    Expected payload: { "category": "stack", "name": "React", "skill": { "name": "ReactJS", "image": "..." } }
+    """
+    try:
+        _validate_admin_token(request)
+        category = payload.get('category')
+        name = payload.get('name')
+        new_skill = payload.get('skill')
+        if not category or not name or not new_skill:
+            raise HTTPException(status_code=400, detail='category, name and skill required')
+        here = os.path.dirname(os.path.abspath(__file__))
+        skills_path = os.path.normpath(os.path.join(here, 'data', 'skills.json'))
+        with open(skills_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        if category not in data or not isinstance(data.get(category), list):
+            raise HTTPException(status_code=404, detail='Category not found')
+        updated = None
+        new_list = []
+        for item in data.get(category, []):
+            if isinstance(item, dict) and item.get('name') == name and updated is None:
+                new_list.append(new_skill)
+                updated = new_skill
+                continue
+            new_list.append(item)
+        if updated is None:
+            raise HTTPException(status_code=404, detail='Skill not found')
+        data[category] = new_list
+        with open(skills_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"[skills] Edited skill in {category}: {name} -> {new_skill.get('name')}")
+        return {"message": "Skill atualizada com sucesso", "skill": new_skill}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Erro ao editar skill: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao editar skill")
+
 @app.get("/api/stats")
 def get_stats():
     """Obter estatísticas da base de dados"""

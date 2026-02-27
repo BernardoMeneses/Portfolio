@@ -1,10 +1,17 @@
 import React from 'react';
 
-const ProjectCard = ({ title, description, repoLink, projectLink, image, tech, isAdmin = false, onDelete }) => {
+const ProjectCard = ({ title, description, repoLink, projectLink, image, tech, isAdmin = false, onDelete, onEdit }) => {
     return (
         <div className="project-card">
-            {isAdmin && typeof onDelete === 'function' && (
-                <button className="project-delete" onClick={onDelete} title="Remove project">✖</button>
+            {isAdmin && (
+                <div className="project-admin-actions">
+                    {typeof onDelete === 'function' && (
+                        <button className="project-delete" onClick={onDelete} title="Remove project">✖</button>
+                    )}
+                    {typeof onEdit === 'function' && (
+                        <button className="project-edit" onClick={onEdit} title="Edit project">✎</button>
+                    )}
+                </div>
             )}
             {image && (
                 <div className="project-card-image">

@@ -35,6 +35,8 @@ const Portfolio = () => {
   const adminToken = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null
   const [showAdd, setShowAdd] = useState(false)
   const [newProject, setNewProject] = useState({ title: '', description: '', repo: '', link: '', image: '', tech: '' })
+  const [editingIndex, setEditingIndex] = useState(null)
+  const [editingProject, setEditingProject] = useState({ title: '', description: '', repo: '', link: '', image: '', tech: '' })
 
   const submitNewProject = (e) => {
     e.preventDefault()
@@ -61,6 +63,49 @@ const Portfolio = () => {
       .then(() => {
         setShowAdd(false)
         setNewProject({ title: '', description: '', repo: '', link: '', image: '', tech: '' })
+        fetchProjects()
+      })
+      .catch(err => alert('Error: ' + err.message))
+  }
+
+  const startEditProject = (proj, idx) => {
+    setEditingIndex(idx)
+    setEditingProject({
+      title: proj.title || '',
+      description: proj.description || '',
+      repo: proj.repo || '',
+      link: proj.link || '',
+      image: proj.image || '',
+      tech: (proj.tech && proj.tech.join(', ')) || ''
+    })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const submitEditProject = (e) => {
+    e.preventDefault()
+    const payload = {
+      title: editingProject.title,
+      description: editingProject.description,
+      repo: editingProject.repo,
+      link: editingProject.link,
+      image: editingProject.image,
+      tech: editingProject.tech.split(',').map(s => s.trim()).filter(Boolean)
+    }
+    fetch(`${API_URL}/api/projects/${editingIndex}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-ADMIN-TOKEN': adminToken || ''
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to edit project')
+        return res.json()
+      })
+      .then(() => {
+        setEditingIndex(null)
+        setEditingProject({ title: '', description: '', repo: '', link: '', image: '', tech: '' })
         fetchProjects()
       })
       .catch(err => alert('Error: ' + err.message))
@@ -106,6 +151,23 @@ const Portfolio = () => {
                 <button className="btn-primary" type="submit">Save</button>
               </form>
             )}
+
+            {/* Edit form shown when editingIndex is set */}
+            {editingIndex !== null && (
+              <div style={{ marginTop: 12 }}>
+                <h4>Edit project</h4>
+                <form onSubmit={submitEditProject} className="admin-form">
+                  <input className="input-field" placeholder="Title" value={editingProject.title} onChange={e => setEditingProject({ ...editingProject, title: e.target.value })} required />
+                  <input className="input-field" placeholder="Description" value={editingProject.description} onChange={e => setEditingProject({ ...editingProject, description: e.target.value })} />
+                  <input className="input-field" placeholder="Repo" value={editingProject.repo} onChange={e => setEditingProject({ ...editingProject, repo: e.target.value })} />
+                  <input className="input-field" placeholder="Link" value={editingProject.link} onChange={e => setEditingProject({ ...editingProject, link: e.target.value })} />
+                  <input className="input-field" placeholder="Image URL" value={editingProject.image} onChange={e => setEditingProject({ ...editingProject, image: e.target.value })} />
+                  <input className="input-field" placeholder="Tech (comma separated)" value={editingProject.tech} onChange={e => setEditingProject({ ...editingProject, tech: e.target.value })} />
+                  <button className="btn-primary" type="submit">Save Changes</button>
+                  <button className="btn-outline" type="button" onClick={() => setEditingIndex(null)}>Cancel</button>
+                </form>
+              </div>
+            )}
           </div>
         )}
 
@@ -131,6 +193,7 @@ const Portfolio = () => {
                   fetchProjects()
                 } catch (err) { alert('Error: ' + err.message) }
               }}
+              onEdit={() => startEditProject(project, index)}
             />
           ))}
         </div>

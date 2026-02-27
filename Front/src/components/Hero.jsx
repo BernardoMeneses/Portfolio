@@ -55,6 +55,9 @@ const Hero = () => {
                   />
                 </div>
               </div>
+              <div style={{ marginTop: 12 }}>
+                <a className="btn-outline download-cv" href="/cv/CV.pdf" download>Download CV</a>
+              </div>
               <div className="floating-elements">
                 <div className="element element-1">⚛️</div>
                 <div className="element element-2">🎮</div>

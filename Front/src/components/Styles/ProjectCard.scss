@@ -10,6 +10,41 @@
   height: 100%;
 }
 
+.project-admin-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 8px;
+  z-index: 5;
+
+  button {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(0,0,0,0.25);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .project-delete {
+    background: rgba(255, 60, 60, 0.12);
+    border: 1px solid rgba(255, 60, 60, 0.18);
+    color: $secondary;
+  }
+
+  .project-edit {
+    background: rgba(108, 99, 255, 0.08);
+    border: 1px solid rgba(108, 99, 255, 0.16);
+    color: $primary;
+  }
+}
+
 .project-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 30px rgba(138, 43, 226, 0.3);
@@ -119,6 +154,10 @@
     background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
     box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);
   }
+}
+
+@media (max-width: 768px) {
+  .project-admin-actions { right: 12px; }
 }
 
 /* Grid para os cards no Portfolio */
