@@ -106,7 +106,7 @@ const Hero = () => {
                 </div>
               </div>
               <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
-                <a className="btn-outline download-cv" href="/cv/CV.pdf" download>Download CV</a>
+                <a className="btn-outline download-cv" href="/cv/Bernardo_Meneses.pdf" download>Download CV</a>
                 {adminToken && (
                   <>
                     <label className="btn-primary" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>

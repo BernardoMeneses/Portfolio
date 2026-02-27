@@ -105,7 +105,7 @@ app = FastAPI()
 here = os.path.dirname(os.path.abspath(__file__))
 backend_cv_dir = os.path.normpath(os.path.join(here, 'public', 'cv'))
 os.makedirs(backend_cv_dir, exist_ok=True)
-# Mount static files so uploaded CV is available at /cv/CV.pdf
+# Mount static files so uploaded CV is available at /cv/Bernardo_Meneses.pdf
 app.mount('/cv', StaticFiles(directory=backend_cv_dir), name='cv')
 
 # Resolver lista de origins para CORS a partir de variável de ambiente
@@ -761,35 +761,36 @@ async def edit_skill(request: Request, payload: dict):
         raise HTTPException(status_code=500, detail="Erro ao editar skill")
 
 
-    @app.post("/api/admin/upload-cv")
-    async def upload_cv(request: Request, file: UploadFile = File(...)):
-        """Upload a CV PDF from the admin UI and save it into Front/public/cv/CV.pdf
+@app.post("/api/admin/upload-cv")
+async def upload_cv(request: Request, file: UploadFile = File(...)):
+    """Upload a CV PDF from the admin UI and save it into the backend mounted `public/cv`.
 
-        This allows the frontend link `/cv/CV.pdf` to always point to the latest uploaded file.
-        """
-        try:
-            _validate_admin_token(request)
-            # Basic validation
-            filename = file.filename or 'cv.pdf'
-            if not filename.lower().endswith('.pdf') and file.content_type != 'application/pdf':
-                raise HTTPException(status_code=400, detail='Only PDF files are accepted')
+    Files are served from the backend mount at `/cv` (mounted earlier in this file),
+    so we write into the backend `public/cv` directory (`backend_cv_dir`).
+    """
+    try:
+        _validate_admin_token(request)
+        # Basic validation
+        filename = file.filename or 'Bernardo_Meneses.pdf'
+        if not filename.lower().endswith('.pdf') and file.content_type != 'application/pdf':
+            raise HTTPException(status_code=400, detail='Only PDF files are accepted')
 
-            here = os.path.dirname(os.path.abspath(__file__))
-            dest_dir = os.path.normpath(os.path.join(here, '..', 'Front', 'public', 'cv'))
-            os.makedirs(dest_dir, exist_ok=True)
-            dest_path = os.path.join(dest_dir, 'CV.pdf')
+        # Use the backend mounted CV directory (created at module top as `backend_cv_dir`).
+        dest_dir = backend_cv_dir
+        os.makedirs(dest_dir, exist_ok=True)
+        dest_path = os.path.join(dest_dir, 'Bernardo_Meneses.pdf')
 
-            contents = await file.read()
-            with open(dest_path, 'wb') as f:
-                f.write(contents)
+        contents = await file.read()
+        with open(dest_path, 'wb') as f:
+            f.write(contents)
 
-            print(f"[admin] CV uploaded to {dest_path}")
-            return {"message": "CV uploaded successfully", "path": "/cv/CV.pdf"}
-        except HTTPException:
-            raise
-        except Exception as e:
-            print(f"Error uploading CV: {e}")
-            raise HTTPException(status_code=500, detail='Error uploading CV')
+        print(f"[admin] CV uploaded to {dest_path}")
+        return {"message": "CV uploaded successfully", "path": "/cv/Bernardo_Meneses.pdf"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error uploading CV: {e}")
+        raise HTTPException(status_code=500, detail='Error uploading CV')
 
 @app.get("/api/stats")
 def get_stats():
