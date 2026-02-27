@@ -1,3 +1,6 @@
+@use '../../Styles/variables' as *;
+@use '../../Styles/mixins' as *;
+
 /* Estilos para o cartão de projeto */
 .project-card {
   background: rgba(255, 255, 255, 0.05);
