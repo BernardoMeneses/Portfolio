@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { API_URL } from '../config/api'
 import { Link, useLocation } from 'react-router-dom'
 import './Styles/Navbar.scss'
 
@@ -57,10 +58,36 @@ const Navbar = () => {
                 Contact
               </Link>
             </li>
-            <li>
-              <Link to="/admin" className={isActive('/admin') ? 'active' : ''}>
-                Admin
-              </Link>
+            <li className="navbar-admin">
+              <label style={{marginRight:8}}>Admin:</label>
+              <form onSubmit={(e)=>{e.preventDefault();}} style={{display:'inline'}}>
+                <input
+                  type="password"
+                  placeholder="password"
+                  aria-label="admin-password"
+                  onKeyDown={async (e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      const value = e.target.value
+                      try {
+                        const res = await fetch(`${API_URL}/api/admin/login`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ password: value })
+                        })
+                        if (!res.ok) throw new Error('Login failed')
+                        const data = await res.json()
+                        localStorage.setItem('admin_token', data.token)
+                        // optional: give quick visual feedback
+                        e.target.value = ''
+                        alert('Admin authenticated')
+                      } catch (err) {
+                        alert('Admin login failed')
+                      }
+                    }
+                  }}
+                />
+              </form>
             </li>
           </ul>
         </div>
