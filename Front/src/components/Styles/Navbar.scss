@@ -85,6 +85,9 @@
     }
   }
 
+  /* hide mobile toggle by default on desktop */
+  .navbar-toggle { display: none; }
+
   .navbar-admin {
     display: flex;
     align-items: center;

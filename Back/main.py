@@ -108,6 +108,12 @@ os.makedirs(backend_cv_dir, exist_ok=True)
 # Mount static files so uploaded CV is available at /cv/Bernardo_Meneses.pdf
 app.mount('/cv', StaticFiles(directory=backend_cv_dir), name='cv')
 
+# Ensure backend has a public folder to serve hero images
+backend_hero_dir = os.path.normpath(os.path.join(here, 'public', 'hero'))
+os.makedirs(backend_hero_dir, exist_ok=True)
+# Mount hero images at /hero
+app.mount('/hero', StaticFiles(directory=backend_hero_dir), name='hero')
+
 # Resolver lista de origins para CORS a partir de variável de ambiente
 def _resolve_allowed_origins():
     default = [
@@ -791,6 +797,39 @@ async def upload_cv(request: Request, file: UploadFile = File(...)):
     except Exception as e:
         print(f"Error uploading CV: {e}")
         raise HTTPException(status_code=500, detail='Error uploading CV')
+
+
+@app.post("/api/admin/upload-hero")
+async def upload_hero(request: Request, file: UploadFile = File(...)):
+    """Upload hero image from admin UI and save it into the backend mounted `public/hero`.
+
+    Saved file will be available at `/hero/hero.jpg` (or original extension).
+    """
+    try:
+        _validate_admin_token(request)
+        filename = file.filename or 'hero.jpg'
+        # allow common image types
+        if not any(filename.lower().endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp']):
+            raise HTTPException(status_code=400, detail='Only JPG/PNG/WEBP files are accepted')
+
+        dest_dir = backend_hero_dir
+        os.makedirs(dest_dir, exist_ok=True)
+        # preserve extension but use stable name
+        _, ext = os.path.splitext(filename)
+        ext = ext or '.jpg'
+        dest_path = os.path.join(dest_dir, 'hero' + ext)
+
+        contents = await file.read()
+        with open(dest_path, 'wb') as f:
+            f.write(contents)
+
+        print(f"[admin] Hero image uploaded to {dest_path}")
+        return {"message": "Hero image uploaded successfully", "path": "/hero/hero" + ext}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error uploading hero image: {e}")
+        raise HTTPException(status_code=500, detail='Error uploading hero image')
 
 @app.get("/api/stats")
 def get_stats():
