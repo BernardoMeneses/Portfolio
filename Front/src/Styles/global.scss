@@ -92,6 +92,30 @@ ul {
   }
 }
 
+/* Style select elements that use .input-field to match site theme */
+select.input-field {
+  background: $card-bg;
+  color: $primary;
+  border: 1px solid rgba(108, 99, 255, 0.12);
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $border-radius-sm;
+  min-height: 40px;
+  -webkit-appearance: menulist-button;
+  appearance: menulist-button;
+}
+
+/* Options styling (some browsers limit option styling) */
+select.input-field option {
+  background: $card-bg;
+  color: $primary;
+}
+
+/* Improve contrast for disabled/placeholder */
+select.input-field:focus {
+  box-shadow: 0 6px 20px rgba(108, 99, 255, 0.08);
+  border-color: rgba($primary, 0.5);
+}
+
 .admin-controls {
   display: flex;
   align-items: center;
