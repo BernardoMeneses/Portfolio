@@ -35,6 +35,11 @@ PROJECTS_PATH_ENV = os.getenv("PROJECTS_PATH")
 
 # Origens permitidas (CORS). Pode ser uma lista separada por vírgulas ou "*" para permitir todas.
 ALLOWED_ORIGINS_ENV = os.getenv("ALLOWED_ORIGINS")
+# Senha admin para edição via UI (defina como secret no Fly)
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
+
+# Store tokens for admin sessions (in-memory, ephemeral)
+admin_tokens = {}
 
 def init_database():
     # No database initialization required when DB removed
@@ -467,6 +472,34 @@ async def add_recommendation(comment: CommentRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail="Erro ao adicionar recomendação")
 
+
+@app.post("/api/skills")
+async def add_skill(request: Request, payload: dict):
+    """Add a skill to one of the arrays in Back/data/skills.json (admin only)."""
+    try:
+        _validate_admin_token(request)
+        category = payload.get('category')
+        skill = payload.get('skill')
+        if not category or not skill:
+            raise HTTPException(status_code=400, detail='category and skill required')
+        here = os.path.dirname(os.path.abspath(__file__))
+        skills_path = os.path.normpath(os.path.join(here, 'data', 'skills.json'))
+        with open(skills_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        # Ensure category exists and is a list
+        if category not in data or not isinstance(data.get(category), list):
+            data[category] = []
+        data[category].append(skill)
+        with open(skills_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"[skills] Added skill to {category}: {skill.get('name')}")
+        return {"message": "Skill adicionada com sucesso", "skill": skill}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Erro ao adicionar skill: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao adicionar skill")
+
 @app.post("/api/contact")
 async def send_contact_message(contact: ContactMessage):
     """Envia mensagem de contato por email"""
@@ -534,14 +567,59 @@ async def send_contact_message(contact: ContactMessage):
         print(f"=============================================")
         return {"message": "Mensagem recebida e salva! Houve um erro no envio automático."}
 
-@app.post("/api/projects")
-async def add_project(project: Project):
-    """Adicionar novo projeto à base de dados (endpoint administrativo)"""
+from fastapi import Request
+
+
+@app.post("/api/admin/login")
+async def admin_login(payload: dict):
+    """Simple admin login: verify password and return a token."""
     try:
-        # DB disabled: do not persist projects server-side. Frontend uses static JSON.
-        print(f"[project] Received new project: {project.title}")
-        return {"message": "Projeto recebido (não persistido em DB)."}
-        
+        password = payload.get("password")
+        if not ADMIN_PASSWORD:
+            raise HTTPException(status_code=403, detail="Admin password not configured")
+        if password != ADMIN_PASSWORD:
+            raise HTTPException(status_code=401, detail="Invalid password")
+        token = secrets.token_urlsafe(32)
+        admin_tokens[token] = True
+        return {"token": token}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"admin login error: {e}")
+        raise HTTPException(status_code=500, detail="Server error")
+
+
+def _validate_admin_token(request: Request):
+    token = request.headers.get("X-ADMIN-TOKEN")
+    if not token or token not in admin_tokens:
+        raise HTTPException(status_code=401, detail="Invalid or missing admin token")
+
+
+@app.post("/api/projects")
+async def add_project(request: Request, project: Project):
+    """Adicionar novo projeto gravando em Back/data/projects.json (admin only)"""
+    try:
+        _validate_admin_token(request)
+        here = os.path.dirname(os.path.abspath(__file__))
+        projects_path = os.path.normpath(os.path.join(here, 'data', 'projects.json'))
+        # Read existing
+        with open(projects_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        if not isinstance(data, list):
+            data = []
+        # Append new project
+        project_dict = project.dict()
+        data.append(project_dict)
+        # Write back
+        with open(projects_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"[project] Added project: {project.title}")
+        return {"message": "Projeto adicionado com sucesso", "project": project_dict}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Erro ao adicionar projeto: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao adicionar projeto")
     except Exception as e:
         print(f"Erro ao adicionar projeto: {e}")
         raise HTTPException(status_code=500, detail="Erro ao adicionar projeto")

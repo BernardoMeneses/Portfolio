@@ -25,10 +25,63 @@ const Skills = () => {
       })
   }, [])
 
+  const adminToken = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null
+  const [showAddSkill, setShowAddSkill] = useState(false)
+  const [newSkill, setNewSkill] = useState({ category: 'stack', name: '', image: '' })
+
+  const submitNewSkill = (e) => {
+    e.preventDefault()
+    const payload = { category: newSkill.category, skill: { name: newSkill.name, image: newSkill.image } }
+    fetch(`${API_URL}/api/skills`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-ADMIN-TOKEN': adminToken || ''
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to add skill')
+        return res.json()
+      })
+      .then(() => {
+        setShowAddSkill(false)
+        setNewSkill({ category: 'stack', name: '', image: '' })
+        // reload skills
+        fetch(`${API_URL}/api/skills`)
+          .then(res => res.json())
+          .then(data => {
+            setSkills((data && data.stack) || [])
+            setDbStack((data && data.dbStack) || [])
+            setTools((data && data.tools) || [])
+            setAiStack((data && data.aiStack) || [])
+          })
+      })
+      .catch(err => alert('Error: ' + err.message))
+  }
+
   return (
     <section id="skills" className="skills section">
       <div className="container">
         <h2 className="section-title">Tech Stack</h2>
+        {adminToken && (
+          <div style={{ marginBottom: 16 }}>
+            <button onClick={() => setShowAddSkill(!showAddSkill)}>{showAddSkill ? 'Cancel' : 'Add Skill'}</button>
+            {showAddSkill && (
+              <form onSubmit={submitNewSkill} style={{ marginTop: 8 }}>
+                <select value={newSkill.category} onChange={e => setNewSkill({ ...newSkill, category: e.target.value })}>
+                  <option value="stack">stack</option>
+                  <option value="dbStack">dbStack</option>
+                  <option value="tools">tools</option>
+                  <option value="aiStack">aiStack</option>
+                </select>
+                <input placeholder="Name" value={newSkill.name} onChange={e => setNewSkill({ ...newSkill, name: e.target.value })} required />
+                <input placeholder="Image URL" value={newSkill.image} onChange={e => setNewSkill({ ...newSkill, image: e.target.value })} />
+                <button type="submit">Save</button>
+              </form>
+            )}
+          </div>
+        )}
 
         <div className="skills-grid">
           {skills.map((skill, index) => (
