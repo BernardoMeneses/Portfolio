@@ -82,7 +82,6 @@ const Portfolio = () => {
       image: proj.image || '',
       tech: (proj.tech && proj.tech.join(', ')) || ''
     })
-    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const submitEditProject = (e) => {
