@@ -54,6 +54,32 @@ const Hero = () => {
       showToast('CV upload failed: ' + (err.message || ''), { type: 'error' })
     } finally { setUploading(false) }
   }
+
+  const downloadCV = async () => {
+    try {
+      const backendFallback = 'https://portfolio-backend-shy-butterfly-71.fly.dev'
+      const base = (API_URL && API_URL.startsWith('http')) ? API_URL.replace(/\/$/, '') : backendFallback
+      const res = await fetch(`${base}/cv/Bernardo_Meneses.pdf`)
+      if (!res.ok) {
+        let msg = 'Download failed'
+        try { const j = await res.json(); msg = j.detail || j.message || JSON.stringify(j) } catch (e) { msg = await res.text().catch(()=> 'Download failed') }
+        showToast('CV download failed: ' + msg, { type: 'error' })
+        return
+      }
+      const blob = await res.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'Bernardo_Meneses.pdf'
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error('Download error', err)
+      showToast('CV download failed: ' + (err.message || ''), { type: 'error' })
+    }
+  }
   return (
     <section id="home" className="hero">
       <div className="container">
@@ -106,7 +132,7 @@ const Hero = () => {
                 </div>
               </div>
               <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
-                <a className="btn-outline download-cv" href="/cv/Bernardo_Meneses.pdf" download>Download CV</a>
+                <button className="btn-outline download-cv" onClick={downloadCV}>Download CV</button>
                 {adminToken && (
                   <>
                     <label className="btn-primary" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
