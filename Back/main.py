@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional
 import requests
@@ -99,6 +100,13 @@ def save_contact_message(name: str, email: str, message: str, sent_by_email: boo
     return None
 
 app = FastAPI()
+
+# Ensure backend has a public folder to serve uploaded CVs
+here = os.path.dirname(os.path.abspath(__file__))
+backend_cv_dir = os.path.normpath(os.path.join(here, 'public', 'cv'))
+os.makedirs(backend_cv_dir, exist_ok=True)
+# Mount static files so uploaded CV is available at /cv/CV.pdf
+app.mount('/cv', StaticFiles(directory=backend_cv_dir), name='cv')
 
 # Resolver lista de origins para CORS a partir de variável de ambiente
 def _resolve_allowed_origins():

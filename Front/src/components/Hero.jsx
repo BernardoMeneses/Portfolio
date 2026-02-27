@@ -12,6 +12,13 @@ const Hero = () => {
 
   useEffect(() => {
     if (typeof window !== 'undefined') setAdminToken(localStorage.getItem('admin_token'))
+
+    const handler = (e) => {
+      const t = e && e.detail && e.detail.token ? e.detail.token : null
+      setAdminToken(t)
+    }
+    window.addEventListener('admin-auth-changed', handler)
+    return () => window.removeEventListener('admin-auth-changed', handler)
   }, [])
 
   const handleUpload = async (file) => {
@@ -21,7 +28,10 @@ const Hero = () => {
       setUploading(true)
       const form = new FormData()
       form.append('file', file)
-      const res = await fetch(`${API_URL}/api/admin/upload-cv`, {
+      // Ensure we call an absolute backend URL — fall back to the Fly backend when API_URL is not absolute
+      const backendFallback = 'https://portfolio-backend-shy-butterfly-71.fly.dev'
+      const base = (API_URL && API_URL.startsWith('http')) ? API_URL.replace(/\/$/, '') : backendFallback
+      const res = await fetch(`${base}/api/admin/upload-cv`, {
         method: 'POST',
         headers: { 'X-ADMIN-TOKEN': adminToken || '' },
         body: form

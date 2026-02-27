@@ -73,7 +73,7 @@ const Navbar = () => {
                 <div className="welcome">
                   <span className="crown-icon" role="img" aria-label="crown">👑</span>
                   <span className="welcome-text">Welcome, Bernardo</span>
-                  <button className="btn-outline navbar-logout" onClick={() => { localStorage.removeItem('admin_token'); setAdminToken(null); }}>Logout</button>
+                  <button className="btn-outline navbar-logout" onClick={() => { localStorage.removeItem('admin_token'); setAdminToken(null); try { window.dispatchEvent(new CustomEvent('admin-auth-changed', { detail: { token: null } })) } catch(e){} }}>Logout</button>
                 </div>
               ) : (
                 <>
@@ -98,6 +98,7 @@ const Navbar = () => {
                             const data = await res.json()
                             localStorage.setItem('admin_token', data.token)
                             setAdminToken(data.token)
+                            try { window.dispatchEvent(new CustomEvent('admin-auth-changed', { detail: { token: data.token } })) } catch(e){}
                             e.target.value = ''
                             showToast('Admin authenticated', { type: 'success' })
                           } catch (err) {
