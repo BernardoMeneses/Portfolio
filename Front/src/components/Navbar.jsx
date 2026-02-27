@@ -9,6 +9,7 @@ const Navbar = () => {
   const location = useLocation()
   const [adminToken, setAdminToken] = useState(null)
   const [uploading, setUploading] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const { showToast } = useToast()
 
   useEffect(() => {
@@ -112,6 +113,58 @@ const Navbar = () => {
               )}
             </li>
           </ul>
+          <button className={`navbar-toggle ${mobileOpen ? 'open' : ''}`} aria-label="Toggle menu" onClick={() => setMobileOpen(!mobileOpen)}>
+            <span />
+            <span />
+            <span />
+          </button>
+          {mobileOpen && (
+            <div className="navbar-mobile">
+              <ul>
+                <li><Link to="/" onClick={()=>setMobileOpen(false)}>Home</Link></li>
+                <li><Link to="/about" onClick={()=>setMobileOpen(false)}>About</Link></li>
+                <li><Link to="/skills" onClick={()=>setMobileOpen(false)}>Skills</Link></li>
+                <li><Link to="/portfolio" onClick={()=>setMobileOpen(false)}>Portfolio</Link></li>
+                <li><Link to="/contact" onClick={()=>setMobileOpen(false)}>Contact</Link></li>
+              </ul>
+              <div className="navbar-mobile-admin">
+                {adminToken ? (
+                  <div className="welcome">
+                    <span className="crown-icon" role="img" aria-label="crown">👑</span>
+                    <span className="welcome-text">Welcome, Bernardo</span>
+                    <button className="btn-outline navbar-logout" onClick={() => { localStorage.removeItem('admin_token'); setAdminToken(null); try { window.dispatchEvent(new CustomEvent('admin-auth-changed', { detail: { token: null } })) } catch(e){}; setMobileOpen(false) }}>Logout</button>
+                  </div>
+                ) : (
+                  <div className="mobile-admin-form">
+                    <label className="admin-label">Admin</label>
+                    <input className="input-field admin-input" type="password" placeholder="Admin password" onKeyDown={async (e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        const value = e.target.value
+                        try {
+                          const res = await fetch(`${API_URL}/api/admin/login`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ password: value })
+                          })
+                          if (!res.ok) throw new Error('Login failed')
+                          const data = await res.json()
+                          localStorage.setItem('admin_token', data.token)
+                          setAdminToken(data.token)
+                          try { window.dispatchEvent(new CustomEvent('admin-auth-changed', { detail: { token: data.token } })) } catch(e){}
+                          e.target.value = ''
+                          showToast('Admin authenticated', { type: 'success' })
+                          setMobileOpen(false)
+                        } catch (err) {
+                          showToast('Admin login failed', { type: 'error' })
+                        }
+                      }
+                    }} />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </nav>
