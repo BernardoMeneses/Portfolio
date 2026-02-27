@@ -6,6 +6,7 @@ import './Styles/Navbar.scss'
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const location = useLocation()
+  const [adminToken, setAdminToken] = useState(null)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -14,6 +15,12 @@ const Navbar = () => {
 
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setAdminToken(localStorage.getItem('admin_token'))
+    }
   }, [])
 
   const isActive = (path) => {
@@ -59,35 +66,45 @@ const Navbar = () => {
               </Link>
             </li>
             <li className="navbar-admin">
-              <label className="admin-label">Admin:</label>
-              <form className="admin-form" onSubmit={(e)=>{e.preventDefault();}}>
-                <input
-                  className="input-field admin-input"
-                  type="password"
-                  placeholder="Admin password"
-                  aria-label="admin-password"
-                  onKeyDown={async (e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      const value = e.target.value
-                      try {
-                        const res = await fetch(`${API_URL}/api/admin/login`, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ password: value })
-                        })
-                        if (!res.ok) throw new Error('Login failed')
-                        const data = await res.json()
-                        localStorage.setItem('admin_token', data.token)
-                        e.target.value = ''
-                        alert('Admin authenticated')
-                      } catch (err) {
-                        alert('Admin login failed')
-                      }
-                    }
-                  }}
-                />
-              </form>
+              {adminToken ? (
+                <div className="welcome">
+                  <span className="crown-icon" role="img" aria-label="crown">👑</span>
+                  <span className="welcome-text">Welcome, Bernardo</span>
+                </div>
+              ) : (
+                <>
+                  <label className="admin-label">Admin:</label>
+                  <form className="admin-form" onSubmit={(e)=>{e.preventDefault();}}>
+                    <input
+                      className="input-field admin-input"
+                      type="password"
+                      placeholder="Admin password"
+                      aria-label="admin-password"
+                      onKeyDown={async (e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          const value = e.target.value
+                          try {
+                            const res = await fetch(`${API_URL}/api/admin/login`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ password: value })
+                            })
+                            if (!res.ok) throw new Error('Login failed')
+                            const data = await res.json()
+                            localStorage.setItem('admin_token', data.token)
+                            setAdminToken(data.token)
+                            e.target.value = ''
+                            alert('Admin authenticated')
+                          } catch (err) {
+                            alert('Admin login failed')
+                          }
+                        }
+                      }}
+                    />
+                  </form>
+                </>
+              )}
             </li>
           </ul>
         </div>
