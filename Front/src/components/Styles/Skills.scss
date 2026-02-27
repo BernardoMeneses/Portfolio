@@ -89,4 +89,19 @@
     text-align: center;
     color: $primary;
   }
+
+  .admin-form {
+    display: flex;
+    gap: $spacing-sm;
+    align-items: center;
+    flex-wrap: wrap;
+
+    .input-field {
+      flex: 1 1 180px;
+    }
+
+    .btn-primary {
+      align-self: flex-start;
+    }
+  }
 }

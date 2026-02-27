@@ -59,11 +59,12 @@ const Navbar = () => {
               </Link>
             </li>
             <li className="navbar-admin">
-              <label style={{marginRight:8}}>Admin:</label>
-              <form onSubmit={(e)=>{e.preventDefault();}} style={{display:'inline'}}>
+              <label className="admin-label">Admin:</label>
+              <form className="admin-form" onSubmit={(e)=>{e.preventDefault();}}>
                 <input
+                  className="input-field admin-input"
                   type="password"
-                  placeholder="password"
+                  placeholder="Admin password"
                   aria-label="admin-password"
                   onKeyDown={async (e) => {
                     if (e.key === 'Enter') {
@@ -78,7 +79,6 @@ const Navbar = () => {
                         if (!res.ok) throw new Error('Login failed')
                         const data = await res.json()
                         localStorage.setItem('admin_token', data.token)
-                        // optional: give quick visual feedback
                         e.target.value = ''
                         alert('Admin authenticated')
                       } catch (err) {

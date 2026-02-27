@@ -93,17 +93,17 @@ const Portfolio = () => {
       <div className="container">
         <h2 className="section-title">Projects</h2>
         {adminToken && (
-          <div style={{ marginBottom: 16 }}>
-            <button onClick={() => setShowAdd(!showAdd)}>{showAdd ? 'Cancel' : 'Add Project'}</button>
+          <div className="admin-controls" style={{ marginBottom: 16 }}>
+            <button className="btn-outline" onClick={() => setShowAdd(!showAdd)}>{showAdd ? 'Cancel' : 'Add Project'}</button>
             {showAdd && (
-              <form onSubmit={submitNewProject} style={{ marginTop: 8 }}>
-                <input placeholder="Title" value={newProject.title} onChange={e => setNewProject({ ...newProject, title: e.target.value })} required />
-                <input placeholder="Description" value={newProject.description} onChange={e => setNewProject({ ...newProject, description: e.target.value })} />
-                <input placeholder="Repo" value={newProject.repo} onChange={e => setNewProject({ ...newProject, repo: e.target.value })} />
-                <input placeholder="Link" value={newProject.link} onChange={e => setNewProject({ ...newProject, link: e.target.value })} />
-                <input placeholder="Image URL" value={newProject.image} onChange={e => setNewProject({ ...newProject, image: e.target.value })} />
-                <input placeholder="Tech (comma separated)" value={newProject.tech} onChange={e => setNewProject({ ...newProject, tech: e.target.value })} />
-                <button type="submit">Save</button>
+              <form onSubmit={submitNewProject} style={{ marginTop: 8 }} className="admin-form">
+                <input className="input-field" placeholder="Title" value={newProject.title} onChange={e => setNewProject({ ...newProject, title: e.target.value })} required />
+                <input className="input-field" placeholder="Description" value={newProject.description} onChange={e => setNewProject({ ...newProject, description: e.target.value })} />
+                <input className="input-field" placeholder="Repo" value={newProject.repo} onChange={e => setNewProject({ ...newProject, repo: e.target.value })} />
+                <input className="input-field" placeholder="Link" value={newProject.link} onChange={e => setNewProject({ ...newProject, link: e.target.value })} />
+                <input className="input-field" placeholder="Image URL" value={newProject.image} onChange={e => setNewProject({ ...newProject, image: e.target.value })} />
+                <input className="input-field" placeholder="Tech (comma separated)" value={newProject.tech} onChange={e => setNewProject({ ...newProject, tech: e.target.value })} />
+                <button className="btn-primary" type="submit">Save</button>
               </form>
             )}
           </div>

@@ -65,19 +65,19 @@ const Skills = () => {
       <div className="container">
         <h2 className="section-title">Tech Stack</h2>
         {adminToken && (
-          <div style={{ marginBottom: 16 }}>
-            <button onClick={() => setShowAddSkill(!showAddSkill)}>{showAddSkill ? 'Cancel' : 'Add Skill'}</button>
+          <div className="admin-controls" style={{ marginBottom: 16 }}>
+            <button className="btn-outline" onClick={() => setShowAddSkill(!showAddSkill)}>{showAddSkill ? 'Cancel' : 'Add Skill'}</button>
             {showAddSkill && (
-              <form onSubmit={submitNewSkill} style={{ marginTop: 8 }}>
-                <select value={newSkill.category} onChange={e => setNewSkill({ ...newSkill, category: e.target.value })}>
+              <form onSubmit={submitNewSkill} style={{ marginTop: 8 }} className="admin-form">
+                <select className="input-field" value={newSkill.category} onChange={e => setNewSkill({ ...newSkill, category: e.target.value })}>
                   <option value="stack">stack</option>
                   <option value="dbStack">dbStack</option>
                   <option value="tools">tools</option>
                   <option value="aiStack">aiStack</option>
                 </select>
-                <input placeholder="Name" value={newSkill.name} onChange={e => setNewSkill({ ...newSkill, name: e.target.value })} required />
-                <input placeholder="Image URL" value={newSkill.image} onChange={e => setNewSkill({ ...newSkill, image: e.target.value })} />
-                <button type="submit">Save</button>
+                <input className="input-field" placeholder="Name" value={newSkill.name} onChange={e => setNewSkill({ ...newSkill, name: e.target.value })} required />
+                <input className="input-field" placeholder="Image URL" value={newSkill.image} onChange={e => setNewSkill({ ...newSkill, image: e.target.value })} />
+                <button className="btn-primary" type="submit">Save</button>
               </form>
             )}
           </div>

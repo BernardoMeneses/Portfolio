@@ -115,4 +115,18 @@
       grid-template-columns: 1fr;
     }
   }
+
+  .admin-form {
+    display: flex;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+
+    input.input-field {
+      flex: 1 1 220px;
+    }
+
+    .btn-primary {
+      align-self: flex-start;
+    }
+  }
 }

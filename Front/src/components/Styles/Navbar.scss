@@ -85,6 +85,29 @@
     }
   }
 
+  .navbar-admin {
+    display: flex;
+    align-items: center;
+
+    .admin-label {
+      color: $secondary-text;
+      font-weight: 600;
+      margin-right: $spacing-xs;
+      font-size: 0.95rem;
+    }
+
+    .admin-form {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .admin-input {
+      width: 12rem;
+      max-width: 40vw;
+      font-size: 0.95rem;
+    }
+  }
+
   @media (max-width: 768px) {
     .navbar-links {
       display: none;

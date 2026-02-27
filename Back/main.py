@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
@@ -566,9 +566,6 @@ async def send_contact_message(contact: ContactMessage):
         print(f"Mensagem: {contact.message}")
         print(f"=============================================")
         return {"message": "Mensagem recebida e salva! Houve um erro no envio automático."}
-
-from fastapi import Request
-
 
 @app.post("/api/admin/login")
 async def admin_login(payload: dict):
