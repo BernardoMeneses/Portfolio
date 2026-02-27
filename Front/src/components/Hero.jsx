@@ -1,9 +1,39 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import './Styles/Hero.scss'
 import profileImage from '../assets/eu.jpg'
+import { API_URL } from '../config/api'
 
 const Hero = () => {
+  const [adminToken, setAdminToken] = useState(null)
+  const [uploading, setUploading] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') setAdminToken(localStorage.getItem('admin_token'))
+  }, [])
+
+  const handleUpload = async (file) => {
+    if (!file) return
+    if (!file.name.toLowerCase().endsWith('.pdf')) { alert('Please select a PDF file'); return }
+    try {
+      setUploading(true)
+      const form = new FormData()
+      form.append('file', file)
+      const res = await fetch(`${API_URL}/api/admin/upload-cv`, {
+        method: 'POST',
+        headers: { 'X-ADMIN-TOKEN': adminToken || '' },
+        body: form
+      })
+      if (!res.ok) {
+        const txt = await res.text().catch(()=>null)
+        throw new Error(txt || 'Upload failed')
+      }
+      alert('CV uploaded successfully')
+    } catch (err) {
+      console.error('Upload error', err)
+      alert('CV upload failed: ' + (err.message || ''))
+    } finally { setUploading(false) }
+  }
   return (
     <section id="home" className="hero">
       <div className="container">
@@ -55,8 +85,21 @@ const Hero = () => {
                   />
                 </div>
               </div>
-              <div style={{ marginTop: 12 }}>
+              <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
                 <a className="btn-outline download-cv" href="/cv/CV.pdf" download>Download CV</a>
+                {adminToken && (
+                  <>
+                    <label className="btn-primary" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                      {uploading ? 'Uploading...' : 'Upload CV'}
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        style={{ display: 'none' }}
+                        onChange={(e) => handleUpload(e.target.files && e.target.files[0])}
+                      />
+                    </label>
+                  </>
+                )}
               </div>
               <div className="floating-elements">
                 <div className="element element-1">⚛️</div>

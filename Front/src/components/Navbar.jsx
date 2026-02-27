@@ -71,31 +71,6 @@ const Navbar = () => {
                 <div className="welcome">
                   <span className="crown-icon" role="img" aria-label="crown">👑</span>
                   <span className="welcome-text">Welcome, Bernardo</span>
-                  <input
-                    type="file"
-                    accept="application/pdf"
-                    style={{ marginLeft: 12 }}
-                    onChange={async (e) => {
-                      const file = e.target.files && e.target.files[0]
-                      if (!file) return
-                      if (!file.name.toLowerCase().endsWith('.pdf')) { alert('Please select a PDF file'); return }
-                      try {
-                        setUploading(true)
-                        const form = new FormData()
-                        form.append('file', file)
-                        const res = await fetch(`${API_URL}/api/admin/upload-cv`, {
-                          method: 'POST',
-                          headers: { 'X-ADMIN-TOKEN': adminToken || '' },
-                          body: form
-                        })
-                        if (!res.ok) throw new Error('Upload failed')
-                        alert('CV uploaded successfully')
-                        e.target.value = null
-                      } catch (err) {
-                        alert('CV upload failed')
-                      } finally { setUploading(false) }
-                    }}
-                  />
                   <button className="btn-outline navbar-logout" onClick={() => { localStorage.removeItem('admin_token'); setAdminToken(null); }}>Logout</button>
                 </div>
               ) : (
