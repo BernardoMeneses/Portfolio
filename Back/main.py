@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi import FastAPI, HTTPException, Depends, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
@@ -751,6 +751,37 @@ async def edit_skill(request: Request, payload: dict):
     except Exception as e:
         print(f"Erro ao editar skill: {e}")
         raise HTTPException(status_code=500, detail="Erro ao editar skill")
+
+
+    @app.post("/api/admin/upload-cv")
+    async def upload_cv(request: Request, file: UploadFile = File(...)):
+        """Upload a CV PDF from the admin UI and save it into Front/public/cv/CV.pdf
+
+        This allows the frontend link `/cv/CV.pdf` to always point to the latest uploaded file.
+        """
+        try:
+            _validate_admin_token(request)
+            # Basic validation
+            filename = file.filename or 'cv.pdf'
+            if not filename.lower().endswith('.pdf') and file.content_type != 'application/pdf':
+                raise HTTPException(status_code=400, detail='Only PDF files are accepted')
+
+            here = os.path.dirname(os.path.abspath(__file__))
+            dest_dir = os.path.normpath(os.path.join(here, '..', 'Front', 'public', 'cv'))
+            os.makedirs(dest_dir, exist_ok=True)
+            dest_path = os.path.join(dest_dir, 'CV.pdf')
+
+            contents = await file.read()
+            with open(dest_path, 'wb') as f:
+                f.write(contents)
+
+            print(f"[admin] CV uploaded to {dest_path}")
+            return {"message": "CV uploaded successfully", "path": "/cv/CV.pdf"}
+        except HTTPException:
+            raise
+        except Exception as e:
+            print(f"Error uploading CV: {e}")
+            raise HTTPException(status_code=500, detail='Error uploading CV')
 
 @app.get("/api/stats")
 def get_stats():
