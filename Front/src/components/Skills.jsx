@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import './Styles/Skills.scss'
 import { API_URL } from '../config/api'
+import { useToast } from './ToastProvider'
 
 const Skills = () => {
   const [skills, setSkills] = useState([])
   const [dbStack, setDbStack] = useState([])
   const [tools, setTools] = useState([])
   const [aiStack, setAiStack] = useState([])
+
+  const { showToast, showConfirm } = useToast()
 
   useEffect(() => {
     fetch(`${API_URL}/api/skills`)
@@ -22,6 +25,7 @@ const Skills = () => {
       })
       .catch(err => {
         console.error('Error fetching skills from backend:', err)
+        showToast('Error fetching skills: ' + (err.message || ''), { type: 'error' })
       })
   }, [])
 
@@ -58,7 +62,7 @@ const Skills = () => {
             setAiStack((data && data.aiStack) || [])
           })
       })
-      .catch(err => alert('Error: ' + err.message))
+      .catch(err => showToast('Error: ' + (err.message || ''), { type: 'error' }))
   }
 
   return (
@@ -107,28 +111,34 @@ const Skills = () => {
                   {adminToken && (
                     <>
                       <button className="skill-delete" onClick={async () => {
-                        if (!confirm(`Remove skill ${skill.name} from dbStack?`)) return
-                        try {
-                          const res = await fetch(`${API_URL}/api/skills`, {
-                            method: 'DELETE',
-                            headers: { 'Content-Type': 'application/json', 'X-ADMIN-TOKEN': adminToken || '' },
-                            body: JSON.stringify({ category: 'dbStack', name: skill.name })
-                          })
-                          if (!res.ok) throw new Error('Failed to remove skill')
-                          // reload skills
-                          const data = await (await fetch(`${API_URL}/api/skills`)).json()
-                          setSkills((data && data.stack) || [])
-                          setDbStack((data && data.dbStack) || [])
-                          setTools((data && data.tools) || [])
-                          setAiStack((data && data.aiStack) || [])
-                        } catch (err) { alert('Error: ' + err.message) }
-                      }} title="Remove skill">✖</button>
-                          <button className="skill-edit" onClick={() => {
-                        // open inline edit form for this skill
-                        setEditing({ open: true, category: 'dbStack', originalName: skill.name, skill: { name: skill.name, image: skill.image || '' } })
-                      }} title="Edit skill">✎</button>
-                    </>
-                  )}
+                              const ok = await showConfirm(`Remove skill ${skill.name} from dbStack?`, 'Remove skill')
+                              if (!ok) return
+                              try {
+                                const res = await fetch(`${API_URL}/api/skills`, {
+                                  method: 'DELETE',
+                                  headers: { 'Content-Type': 'application/json', 'X-ADMIN-TOKEN': adminToken || '' },
+                                  body: JSON.stringify({ category: 'dbStack', name: skill.name })
+                                })
+                                if (!res.ok) {
+                                  let msg = 'Failed to remove skill'
+                                  try { const j = await res.json(); msg = j.detail || j.message || JSON.stringify(j) } catch(e){ msg = await res.text().catch(()=>msg) }
+                                  throw new Error(msg)
+                                }
+                                // reload skills
+                                const data = await (await fetch(`${API_URL}/api/skills`)).json()
+                                setSkills((data && data.stack) || [])
+                                setDbStack((data && data.dbStack) || [])
+                                setTools((data && data.tools) || [])
+                                setAiStack((data && data.aiStack) || [])
+                                showToast('Skill removed', { type: 'success' })
+                              } catch (err) { showToast('Error: ' + (err.message || ''), { type: 'error' }) }
+                            }} title="Remove skill">✖</button>
+                            <button className="skill-edit" onClick={() => {
+                              // open inline edit form for this skill
+                              setEditing({ open: true, category: 'dbStack', originalName: skill.name, skill: { name: skill.name, image: skill.image || '' } })
+                            }} title="Edit skill">✎</button>
+                          </>
+                        )}
                   {editing.open && editing.category === 'dbStack' && editing.originalName === skill.name ? (
                     <div style={{ width: '100%' }}>
                       <form onSubmit={async (e) => {
@@ -146,7 +156,7 @@ const Skills = () => {
                           setTools((data && data.tools) || [])
                           setAiStack((data && data.aiStack) || [])
                           setEditing({ open: false, category: '', originalName: '', skill: { name: '', image: '' } })
-                        } catch (err) { alert('Error: ' + err.message) }
+                        } catch (err) { showToast('Error: ' + (err.message || ''), { type: 'error' }) }
                       }} className="admin-form">
                         <input className="input-field" value={editing.skill.name} onChange={e => setEditing({ ...editing, skill: { ...editing.skill, name: e.target.value } })} required />
                         <input className="input-field" value={editing.skill.image} onChange={e => setEditing({ ...editing, skill: { ...editing.skill, image: e.target.value } })} placeholder="Image URL" />
@@ -182,20 +192,26 @@ const Skills = () => {
                   {adminToken && (
                         <>
                           <button className="skill-delete" onClick={async () => {
-                            if (!confirm(`Remove skill ${skill.name} from tools?`)) return
+                            const ok = await showConfirm(`Remove skill ${skill.name} from tools?`, 'Remove skill')
+                            if (!ok) return
                             try {
                               const res = await fetch(`${API_URL}/api/skills`, {
                                 method: 'DELETE',
                                 headers: { 'Content-Type': 'application/json', 'X-ADMIN-TOKEN': adminToken || '' },
                                 body: JSON.stringify({ category: 'tools', name: skill.name })
                               })
-                              if (!res.ok) throw new Error('Failed to remove skill')
+                              if (!res.ok) {
+                                let msg = 'Failed to remove skill'
+                                try { const j = await res.json(); msg = j.detail || j.message || JSON.stringify(j) } catch(e){ msg = await res.text().catch(()=>msg) }
+                                throw new Error(msg)
+                              }
                               const data = await (await fetch(`${API_URL}/api/skills`)).json()
                               setSkills((data && data.stack) || [])
                               setDbStack((data && data.dbStack) || [])
                               setTools((data && data.tools) || [])
                               setAiStack((data && data.aiStack) || [])
-                            } catch (err) { alert('Error: ' + err.message) }
+                              showToast('Skill removed', { type: 'success' })
+                            } catch (err) { showToast('Error: ' + (err.message || ''), { type: 'error' }) }
                           }} title="Remove skill">✖</button>
                           <button className="skill-edit" onClick={() => setEditing({ open: true, category: 'tools', originalName: skill.name, skill: { name: skill.name, image: skill.image || '' } })} title="Edit skill">✎</button>
                         </>
@@ -217,7 +233,7 @@ const Skills = () => {
                           setTools((data && data.tools) || [])
                           setAiStack((data && data.aiStack) || [])
                           setEditing({ open: false, category: '', originalName: '', skill: { name: '', image: '' } })
-                        } catch (err) { alert('Error: ' + err.message) }
+                        } catch (err) { showToast('Error: ' + (err.message || ''), { type: 'error' }) }
                       }} className="admin-form">
                         <input className="input-field" value={editing.skill.name} onChange={e => setEditing({ ...editing, skill: { ...editing.skill, name: e.target.value } })} required />
                         <input className="input-field" value={editing.skill.image} onChange={e => setEditing({ ...editing, skill: { ...editing.skill, image: e.target.value } })} placeholder="Image URL" />
@@ -253,20 +269,26 @@ const Skills = () => {
                   {adminToken && (
                     <>
                       <button className="skill-delete" onClick={async () => {
-                        if (!confirm(`Remove skill ${skill.name} from aiStack?`)) return
+                        const ok = await showConfirm(`Remove skill ${skill.name} from aiStack?`, 'Remove skill')
+                        if (!ok) return
                         try {
                           const res = await fetch(`${API_URL}/api/skills`, {
                             method: 'DELETE',
                             headers: { 'Content-Type': 'application/json', 'X-ADMIN-TOKEN': adminToken || '' },
                             body: JSON.stringify({ category: 'aiStack', name: skill.name })
                           })
-                          if (!res.ok) throw new Error('Failed to remove skill')
+                          if (!res.ok) {
+                            let msg = 'Failed to remove skill'
+                            try { const j = await res.json(); msg = j.detail || j.message || JSON.stringify(j) } catch(e){ msg = await res.text().catch(()=>msg) }
+                            throw new Error(msg)
+                          }
                           const data = await (await fetch(`${API_URL}/api/skills`)).json()
                           setSkills((data && data.stack) || [])
                           setDbStack((data && data.dbStack) || [])
                           setTools((data && data.tools) || [])
                           setAiStack((data && data.aiStack) || [])
-                        } catch (err) { alert('Error: ' + err.message) }
+                          showToast('Skill removed', { type: 'success' })
+                        } catch (err) { showToast('Error: ' + (err.message || ''), { type: 'error' }) }
                       }} title="Remove skill">✖</button>
                       <button className="skill-edit" onClick={() => setEditing({ open: true, category: 'aiStack', originalName: skill.name, skill: { name: skill.name, image: skill.image || '' } })} title="Edit skill">✎</button>
                     </>
@@ -288,7 +310,7 @@ const Skills = () => {
                           setTools((data && data.tools) || [])
                           setAiStack((data && data.aiStack) || [])
                           setEditing({ open: false, category: '', originalName: '', skill: { name: '', image: '' } })
-                        } catch (err) { alert('Error: ' + err.message) }
+                        } catch (err) { showToast('Error: ' + (err.message || ''), { type: 'error' }) }
                       }} className="admin-form">
                         <input className="input-field" value={editing.skill.name} onChange={e => setEditing({ ...editing, skill: { ...editing.skill, name: e.target.value } })} required />
                         <input className="input-field" value={editing.skill.image} onChange={e => setEditing({ ...editing, skill: { ...editing.skill, image: e.target.value } })} placeholder="Image URL" />

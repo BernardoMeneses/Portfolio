@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { API_URL } from '../config/api'
 import { Link, useLocation } from 'react-router-dom'
 import './Styles/Navbar.scss'
+import { useToast } from './ToastProvider'
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const location = useLocation()
   const [adminToken, setAdminToken] = useState(null)
   const [uploading, setUploading] = useState(false)
+  const { showToast } = useToast()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -97,9 +99,9 @@ const Navbar = () => {
                             localStorage.setItem('admin_token', data.token)
                             setAdminToken(data.token)
                             e.target.value = ''
-                            alert('Admin authenticated')
+                            showToast('Admin authenticated', { type: 'success' })
                           } catch (err) {
-                            alert('Admin login failed')
+                            showToast('Admin login failed', { type: 'error' })
                           }
                         }
                       }}

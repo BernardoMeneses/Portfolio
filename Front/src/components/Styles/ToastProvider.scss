@@ -1,0 +1,44 @@
+.toast-container {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+}
+
+.toast {
+  background: rgba(20,20,30,0.95);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  min-width: 220px;
+  font-weight: 600;
+}
+.toast.info { background: linear-gradient(90deg, #4b5563, #111827); }
+.toast.success { background: linear-gradient(90deg, #16a34a, #059669); }
+.toast.error { background: linear-gradient(90deg, #dc2626, #b91c1c); }
+
+.toast-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.6);
+  z-index: 10000;
+}
+.toast-confirm {
+  background: #0b0b10;
+  color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+}
+.toast-confirm h4 { margin: 0 0 8px 0; }
+.toast-confirm p { margin: 0 0 16px 0; color: #cbd5e1 }
+.toast-confirm .confirm-actions { display:flex; gap: 8px; justify-content: flex-end }

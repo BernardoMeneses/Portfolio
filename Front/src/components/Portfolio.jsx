@@ -4,6 +4,7 @@ import './Styles/ProjectCard.scss'
 import ProjectCard from './ProjectCard'
 import { API_URL } from '../config/api'
 import { useCallback } from 'react'
+import { useToast } from './ToastProvider'
 
 const Portfolio = () => {
   const [projects, setProjects] = useState([])
@@ -25,6 +26,8 @@ const Portfolio = () => {
         console.error('Error fetching projects from backend:', err)
         setError(err.message)
         setLoading(false)
+        // show toast for visibility
+        showToast('Error fetching projects: ' + (err.message || ''), { type: 'error' })
       })
   }, [])
 
@@ -33,6 +36,7 @@ const Portfolio = () => {
   }, [fetchProjects])
 
   const adminToken = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null
+  const { showToast, showConfirm } = useToast()
   const [showAdd, setShowAdd] = useState(false)
   const [newProject, setNewProject] = useState({ title: '', description: '', repo: '', link: '', image: '', tech: '' })
   const [editingIndex, setEditingIndex] = useState(null)
@@ -65,7 +69,7 @@ const Portfolio = () => {
         setNewProject({ title: '', description: '', repo: '', link: '', image: '', tech: '' })
         fetchProjects()
       })
-      .catch(err => alert('Error: ' + err.message))
+      .catch(err => { showToast('Error: ' + (err.message || ''), { type: 'error' }) })
   }
 
   const startEditProject = (proj, idx) => {
@@ -108,7 +112,7 @@ const Portfolio = () => {
         setEditingProject({ title: '', description: '', repo: '', link: '', image: '', tech: '' })
         fetchProjects()
       })
-      .catch(err => alert('Error: ' + err.message))
+      .catch(err => { showToast('Error: ' + (err.message || ''), { type: 'error' }) })
   }
 
   if (loading) {
@@ -183,15 +187,21 @@ const Portfolio = () => {
               tech={project.tech}
               isAdmin={!!adminToken}
               onDelete={async () => {
-                if (!confirm(`Remove project ${project.title}?`)) return
+                const ok = await showConfirm(`Remove project ${project.title}?`, 'Remove project')
+                if (!ok) return
                 try {
                   const res = await fetch(`${API_URL}/api/projects/${index}`, {
                     method: 'DELETE',
                     headers: { 'X-ADMIN-TOKEN': adminToken || '' }
                   })
-                  if (!res.ok) throw new Error('Failed to remove project')
+                  if (!res.ok) {
+                    let msg = 'Failed to remove project'
+                    try { const j = await res.json(); msg = j.detail || j.message || JSON.stringify(j) } catch(e){ msg = await res.text().catch(()=>msg) }
+                    throw new Error(msg)
+                  }
                   fetchProjects()
-                } catch (err) { alert('Error: ' + err.message) }
+                  showToast('Project removed', { type: 'success' })
+                } catch (err) { showToast('Error: ' + (err.message || ''), { type: 'error' }) }
               }}
               onEdit={() => startEditProject(project, index)}
             />

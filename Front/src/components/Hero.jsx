@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom'
 import './Styles/Hero.scss'
 import profileImage from '../assets/eu.jpg'
 import { API_URL } from '../config/api'
+import { useToast } from './ToastProvider'
 
 const Hero = () => {
   const [adminToken, setAdminToken] = useState(null)
   const [uploading, setUploading] = useState(false)
+  const { showToast } = useToast()
 
   useEffect(() => {
     if (typeof window !== 'undefined') setAdminToken(localStorage.getItem('admin_token'))
@@ -14,7 +16,7 @@ const Hero = () => {
 
   const handleUpload = async (file) => {
     if (!file) return
-    if (!file.name.toLowerCase().endsWith('.pdf')) { alert('Please select a PDF file'); return }
+    if (!file.name.toLowerCase().endsWith('.pdf')) { showToast('Please select a PDF file', { type: 'error' }); return }
     try {
       setUploading(true)
       const form = new FormData()
@@ -25,13 +27,21 @@ const Hero = () => {
         body: form
       })
       if (!res.ok) {
-        const txt = await res.text().catch(()=>null)
-        throw new Error(txt || 'Upload failed')
+        // Try to parse JSON detail
+        let msg = 'Upload failed'
+        try {
+          const j = await res.json()
+          msg = j.detail || j.message || JSON.stringify(j)
+        } catch (e) {
+          msg = await res.text().catch(()=> 'Upload failed')
+        }
+        showToast('CV upload failed: ' + msg, { type: 'error' })
+        return
       }
-      alert('CV uploaded successfully')
+      showToast('CV uploaded successfully', { type: 'success' })
     } catch (err) {
       console.error('Upload error', err)
-      alert('CV upload failed: ' + (err.message || ''))
+      showToast('CV upload failed: ' + (err.message || ''), { type: 'error' })
     } finally { setUploading(false) }
   }
   return (
