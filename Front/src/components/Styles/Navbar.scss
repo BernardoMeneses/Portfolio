@@ -123,6 +123,21 @@
         font-weight: 700;
         font-size: 0.95rem;
       }
+      .navbar-logout {
+        margin-left: $spacing-sm;
+        padding: 0.35rem 0.6rem;
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+  /* mobile friendly admin controls */
+  @media (max-width: 600px) {
+    .navbar-admin {
+      .welcome {
+        .welcome-text { font-size: 0.9rem; }
+        .crown-icon { font-size: 1rem; }
+      }
     }
   }
 

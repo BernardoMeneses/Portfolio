@@ -1,8 +1,11 @@
 import React from 'react';
 
-const ProjectCard = ({ title, description, repoLink, projectLink, image, tech }) => {
+const ProjectCard = ({ title, description, repoLink, projectLink, image, tech, isAdmin = false, onDelete }) => {
     return (
         <div className="project-card">
+            {isAdmin && typeof onDelete === 'function' && (
+                <button className="project-delete" onClick={onDelete} title="Remove project">✖</button>
+            )}
             {image && (
                 <div className="project-card-image">
                     <img src={image} alt={title} />
@@ -11,7 +14,7 @@ const ProjectCard = ({ title, description, repoLink, projectLink, image, tech })
             <div className="project-card-content">
                 <h2 className="project-card-title">{title}</h2>
                 <p className="project-card-description">{description}</p>
-                
+
                 {tech && tech.length > 0 && (
                     <div className="project-card-tech">
                         {tech.map((technology, index) => (
@@ -21,7 +24,7 @@ const ProjectCard = ({ title, description, repoLink, projectLink, image, tech })
                         ))}
                     </div>
                 )}
-                
+
                 <div className="project-card-links">
                     {repoLink && (
                         <a href={repoLink} target="_blank" rel="noopener noreferrer" className="project-card-link">

@@ -70,6 +70,7 @@ const Navbar = () => {
                 <div className="welcome">
                   <span className="crown-icon" role="img" aria-label="crown">👑</span>
                   <span className="welcome-text">Welcome, Bernardo</span>
+                  <button className="btn-outline navbar-logout" onClick={() => { localStorage.removeItem('admin_token'); setAdminToken(null); }}>Logout</button>
                 </div>
               ) : (
                 <>

@@ -621,6 +621,70 @@ async def add_project(request: Request, project: Project):
         print(f"Erro ao adicionar projeto: {e}")
         raise HTTPException(status_code=500, detail="Erro ao adicionar projeto")
 
+
+@app.delete("/api/projects/{index}")
+async def delete_project(request: Request, index: int):
+    """Delete a project by index from Back/data/projects.json (admin only)."""
+    try:
+        _validate_admin_token(request)
+        here = os.path.dirname(os.path.abspath(__file__))
+        projects_path = os.path.normpath(os.path.join(here, 'data', 'projects.json'))
+        with open(projects_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        if not isinstance(data, list):
+            raise HTTPException(status_code=400, detail='Projects file invalid')
+        if index < 0 or index >= len(data):
+            raise HTTPException(status_code=404, detail='Project index out of range')
+        removed = data.pop(index)
+        with open(projects_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"[project] Removed project: {removed.get('title')}")
+        return {"message": "Projeto removido com sucesso", "project": removed}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Erro ao remover projeto: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao remover projeto")
+
+
+@app.delete("/api/skills")
+async def delete_skill(request: Request, payload: dict):
+    """Delete a skill by category and name from Back/data/skills.json (admin only).
+
+    Expected payload: { "category": "stack", "name": "React" }
+    """
+    try:
+        _validate_admin_token(request)
+        category = payload.get('category')
+        name = payload.get('name')
+        if not category or not name:
+            raise HTTPException(status_code=400, detail='category and name required')
+        here = os.path.dirname(os.path.abspath(__file__))
+        skills_path = os.path.normpath(os.path.join(here, 'data', 'skills.json'))
+        with open(skills_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        if category not in data or not isinstance(data.get(category), list):
+            raise HTTPException(status_code=404, detail='Category not found')
+        removed = None
+        new_list = []
+        for item in data.get(category, []):
+            if isinstance(item, dict) and item.get('name') == name and removed is None:
+                removed = item
+                continue
+            new_list.append(item)
+        if removed is None:
+            raise HTTPException(status_code=404, detail='Skill not found')
+        data[category] = new_list
+        with open(skills_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"[skills] Removed skill from {category}: {name}")
+        return {"message": "Skill removida com sucesso", "skill": removed}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Erro ao remover skill: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao remover skill")
+
 @app.get("/api/stats")
 def get_stats():
     """Obter estatísticas da base de dados"""

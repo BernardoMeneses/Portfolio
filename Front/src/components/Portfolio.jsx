@@ -119,6 +119,18 @@ const Portfolio = () => {
               projectLink={project.link}
               image={project.image}
               tech={project.tech}
+              isAdmin={!!adminToken}
+              onDelete={async () => {
+                if (!confirm(`Remove project ${project.title}?`)) return
+                try {
+                  const res = await fetch(`${API_URL}/api/projects/${index}`, {
+                    method: 'DELETE',
+                    headers: { 'X-ADMIN-TOKEN': adminToken || '' }
+                  })
+                  if (!res.ok) throw new Error('Failed to remove project')
+                  fetchProjects()
+                } catch (err) { alert('Error: ' + err.message) }
+              }}
             />
           ))}
         </div>

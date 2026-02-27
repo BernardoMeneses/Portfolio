@@ -10,6 +10,7 @@
 
   .skill-card {
     @include card;
+    position: relative;
     display: flex;
     align-items: center;
     gap: $spacing-sm;
@@ -38,6 +39,26 @@
         display: block;
         background: transparent;
       }
+    }
+
+    .skill-delete {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255, 60, 60, 0.12);
+      border: 1px solid rgba(255, 60, 60, 0.18);
+      color: $secondary;
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+
+      &:hover { transform: translateY(-2px); box-shadow: $shadow-light; }
     }
 
     .skill-info {

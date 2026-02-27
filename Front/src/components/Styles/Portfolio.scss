@@ -110,6 +110,33 @@
     }
   }
 
+  .project-card {
+    position: relative;
+
+    .project-delete {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255, 60, 60, 0.12);
+      border: 1px solid rgba(255, 60, 60, 0.18);
+      color: $secondary;
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: $shadow-light;
+      }
+    }
+  }
+
   @media (max-width: 768px) {
     .portfolio-grid {
       grid-template-columns: 1fr;
@@ -127,6 +154,13 @@
 
     .btn-primary {
       align-self: flex-start;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .admin-form {
+      flex-direction: column;
+      input.input-field, .btn-primary, .btn-outline { width: 100%; }
     }
   }
 }

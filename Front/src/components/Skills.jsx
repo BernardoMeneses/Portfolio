@@ -103,6 +103,25 @@ const Skills = () => {
             <div className="skills-grid">
               {dbStack.map((skill, index) => (
                 <div key={`db-${index}`} className="skill-card">
+                  {adminToken && (
+                    <button className="skill-delete" onClick={async () => {
+                      if (!confirm(`Remove skill ${skill.name} from dbStack?`)) return
+                      try {
+                        const res = await fetch(`${API_URL}/api/skills`, {
+                          method: 'DELETE',
+                          headers: { 'Content-Type': 'application/json', 'X-ADMIN-TOKEN': adminToken || '' },
+                          body: JSON.stringify({ category: 'dbStack', name: skill.name })
+                        })
+                        if (!res.ok) throw new Error('Failed to remove skill')
+                        // reload skills
+                        const data = await (await fetch(`${API_URL}/api/skills`)).json()
+                        setSkills((data && data.stack) || [])
+                        setDbStack((data && data.dbStack) || [])
+                        setTools((data && data.tools) || [])
+                        setAiStack((data && data.aiStack) || [])
+                      } catch (err) { alert('Error: ' + err.message) }
+                    }} title="Remove skill">✖</button>
+                  )}
                   <div className="skill-icon">
                     <img src={skill.image} alt={skill.name} />
                   </div>
@@ -122,6 +141,24 @@ const Skills = () => {
             <div className="skills-grid">
               {tools.map((skill, index) => (
                 <div key={`tool-${index}`} className="skill-card">
+                  {adminToken && (
+                    <button className="skill-delete" onClick={async () => {
+                      if (!confirm(`Remove skill ${skill.name} from tools?`)) return
+                      try {
+                        const res = await fetch(`${API_URL}/api/skills`, {
+                          method: 'DELETE',
+                          headers: { 'Content-Type': 'application/json', 'X-ADMIN-TOKEN': adminToken || '' },
+                          body: JSON.stringify({ category: 'tools', name: skill.name })
+                        })
+                        if (!res.ok) throw new Error('Failed to remove skill')
+                        const data = await (await fetch(`${API_URL}/api/skills`)).json()
+                        setSkills((data && data.stack) || [])
+                        setDbStack((data && data.dbStack) || [])
+                        setTools((data && data.tools) || [])
+                        setAiStack((data && data.aiStack) || [])
+                      } catch (err) { alert('Error: ' + err.message) }
+                    }} title="Remove skill">✖</button>
+                  )}
                   <div className="skill-icon">
                     <img src={skill.image} alt={skill.name} />
                   </div>
@@ -141,6 +178,24 @@ const Skills = () => {
             <div className="skills-grid">
               {aiStack.map((skill, index) => (
                 <div key={`ai-${index}`} className="skill-card">
+                  {adminToken && (
+                    <button className="skill-delete" onClick={async () => {
+                      if (!confirm(`Remove skill ${skill.name} from aiStack?`)) return
+                      try {
+                        const res = await fetch(`${API_URL}/api/skills`, {
+                          method: 'DELETE',
+                          headers: { 'Content-Type': 'application/json', 'X-ADMIN-TOKEN': adminToken || '' },
+                          body: JSON.stringify({ category: 'aiStack', name: skill.name })
+                        })
+                        if (!res.ok) throw new Error('Failed to remove skill')
+                        const data = await (await fetch(`${API_URL}/api/skills`)).json()
+                        setSkills((data && data.stack) || [])
+                        setDbStack((data && data.dbStack) || [])
+                        setTools((data && data.tools) || [])
+                        setAiStack((data && data.aiStack) || [])
+                      } catch (err) { alert('Error: ' + err.message) }
+                    }} title="Remove skill">✖</button>
+                  )}
                   <div className="skill-icon">
                     <img src={skill.image} alt={skill.name} />
                   </div>
