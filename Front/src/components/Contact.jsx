@@ -34,15 +34,15 @@ const Contact = () => {
       
       if (response.ok) {
         const result = await response.json()
-        setSubmitStatus({ type: 'success', message: 'Mensagem enviada com sucesso! Obrigado pelo contato.' })
+        setSubmitStatus({ type: 'success', message: 'Message sent successfully! Thank you for contacting me.' })
         setFormData({ name: '', email: '', message: '' })
       } else {
         const error = await response.json()
-        setSubmitStatus({ type: 'error', message: error.detail || 'Erro ao enviar mensagem. Tente novamente.' })
+        setSubmitStatus({ type: 'error', message: error.detail || 'Error sending message. Please try again.' })
       }
     } catch (error) {
-      console.error('Erro ao enviar mensagem:', error)
-      setSubmitStatus({ type: 'error', message: 'Erro ao enviar mensagem. Verifique sua conexão e tente novamente.' })
+      console.error('Error sending message:', error)
+      setSubmitStatus({ type: 'error', message: 'Error sending message. Please check your connection and try again.' })
     }
     
     setIsSubmitting(false)
@@ -100,7 +100,7 @@ const Contact = () => {
               <input
                 type="text"
                 name="name"
-                placeholder="Seu nome"
+                placeholder="Your Name..."
                 value={formData.name}
                 onChange={handleChange}
                 required
@@ -112,7 +112,7 @@ const Contact = () => {
               <input
                 type="email"
                 name="email"
-                placeholder="Seu e-mail"
+                placeholder="Your Email..."
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -123,7 +123,7 @@ const Contact = () => {
             <div className="form-group">
               <textarea
                 name="message"
-                placeholder="Sua mensagem"
+                placeholder="Your Message..."
                 rows="5"
                 value={formData.message}
                 onChange={handleChange}
@@ -133,7 +133,7 @@ const Contact = () => {
             </div>
             
             <button type="submit" className="submit-btn" disabled={isSubmitting}>
-              {isSubmitting ? 'Enviando...' : 'Enviar Mensagem'}
+              {isSubmitting ? 'Sending...' : 'Send Message'}
               <i className={`fas ${isSubmitting ? 'fa-spinner fa-spin' : 'fa-paper-plane'}`}></i>
             </button>
           </form>
