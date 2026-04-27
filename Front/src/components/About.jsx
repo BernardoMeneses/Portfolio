@@ -36,7 +36,7 @@ const About = () => {
             </div>
             
             <div className="stat-item">
-              <span className="stat-number">15+</span>
+              <span className="stat-number">1</span>
               <span className="stat-label">Completed Projects</span>
             </div>
             
