@@ -120,6 +120,7 @@ def _resolve_allowed_origins():
         "http://localhost:5173",
         "http://localhost:4698",
         "https://bernardomeneses.fly.dev",
+        "https://portfolio-el7d.onrender.com"
     ]
     if not ALLOWED_ORIGINS_ENV:
         return default
