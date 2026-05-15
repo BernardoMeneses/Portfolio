@@ -30,7 +30,8 @@
     "nodemailer": "^6.9.7",
     "sqlite": "^5.0.1",
     "sqlite3": "^5.1.6",
-    "swagger-jsdoc": "^6.2.8"
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "prisma": "^5.7.0"
