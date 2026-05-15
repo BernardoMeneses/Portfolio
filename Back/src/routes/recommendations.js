@@ -4,6 +4,37 @@ import { readJsonFile, addItemToFile } from '../utils/fileStorage.js';
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/recommendations:
+ *   get:
+ *     summary: Get all recommendations
+ *     tags:
+ *       - Recommendations
+ *     description: Retrieve all portfolio recommendations
+ *     responses:
+ *       200:
+ *         description: List of recommendations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                   text:
+ *                     type: string
+ *                   avatar:
+ *                     type: string
+ *                   username:
+ *                     type: string
+ *                   provider:
+ *                     type: string
+ *       500:
+ *         description: Server error
+ */
 // Get all recommendations
 router.get('/', (req, res) => {
   try {
@@ -15,6 +46,40 @@ router.get('/', (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/recommendations:
+ *   post:
+ *     summary: Add new recommendation
+ *     tags:
+ *       - Recommendations
+ *     description: Add a new recommendation with GitHub or Google authentication
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - text
+ *             properties:
+ *               text:
+ *                 type: string
+ *                 example: "Great developer!"
+ *               github_token:
+ *                 type: string
+ *                 example: "ghp_..."
+ *               google_token:
+ *                 type: string
+ *                 example: "ya29..."
+ *     responses:
+ *       201:
+ *         description: Recommendation created successfully
+ *       400:
+ *         description: Missing required fields
+ *       401:
+ *         description: Invalid token
+ */
 // Add new recommendation
 router.post('/', async (req, res) => {
   try {

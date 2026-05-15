@@ -3,6 +3,47 @@ import jwt from 'jsonwebtoken';
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/auth/admin/login:
+ *   post:
+ *     summary: Admin login with password
+ *     tags:
+ *       - Authentication
+ *     description: Authenticate as admin using password and get JWT token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 example: "admin123"
+ *     responses:
+ *       200:
+ *         description: Successfully authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 message:
+ *                   type: string
+ *                   example: "Admin authenticated successfully"
+ *       400:
+ *         description: Missing password
+ *       401:
+ *         description: Invalid password
+ *       500:
+ *         description: Server error
+ */
 // Admin login - password-based authentication
 router.post('/admin/login', (req, res) => {
   try {

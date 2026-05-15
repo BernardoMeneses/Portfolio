@@ -3,6 +3,31 @@ import { readJsonFile } from '../utils/fileStorage.js';
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/stats:
+ *   get:
+ *     summary: Get portfolio statistics
+ *     tags:
+ *       - Statistics
+ *     description: Retrieve portfolio statistics like number of projects and recommendations
+ *     responses:
+ *       200:
+ *         description: Portfolio statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 recommendations:
+ *                   type: integer
+ *                   example: 5
+ *                 projects:
+ *                   type: integer
+ *                   example: 10
+ *       500:
+ *         description: Server error
+ */
 // Get statistics from JSON files
 router.get('/', (req, res) => {
   try {

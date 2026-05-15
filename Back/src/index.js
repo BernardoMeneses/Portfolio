@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -34,6 +36,12 @@ app.use(cors({
 app.get('/', (req, res) => {
   res.json({ message: 'Portfolio API está funcionando! 🚀 Node.js Backend ativo.' });
 });
+
+// Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { 
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Portfolio API Docs'
+}));
 
 // Routes
 app.use('/api/auth', authRoutes);

@@ -3,6 +3,42 @@ import nodemailer from 'nodemailer';
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/contact:
+ *   post:
+ *     summary: Send contact message
+ *     tags:
+ *       - Contact
+ *     description: Send a message through the contact form
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - message
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "João Silva"
+ *               email:
+ *                 type: string
+ *                 example: "joao@example.com"
+ *               message:
+ *                 type: string
+ *                 example: "Olá, gostei muito do seu trabalho!"
+ *     responses:
+ *       200:
+ *         description: Message sent successfully
+ *       400:
+ *         description: Missing required fields or email not configured
+ *       500:
+ *         description: Server error
+ */
 // Send contact message
 router.post('/', async (req, res) => {
   try {
