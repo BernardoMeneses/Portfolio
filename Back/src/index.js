@@ -37,11 +37,16 @@ app.get('/', (req, res) => {
   res.json({ message: 'Portfolio API está funcionando! 🚀 Node.js Backend ativo.' });
 });
 
-// Swagger Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { 
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'Portfolio API Docs'
-}));
+// Swagger Documentation - Setup safely
+try {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { 
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'Portfolio API Docs'
+  }));
+  console.log('✅ Swagger docs available at /api-docs');
+} catch (error) {
+  console.warn('⚠️ Swagger setup warning:', error.message);
+}
 
 // Routes
 app.use('/api/auth', authRoutes);
