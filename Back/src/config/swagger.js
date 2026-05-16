@@ -5,7 +5,7 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const options = {
+const buildOptions = (serverUrl) => ({
   definition: {
     openapi: '3.0.0',
     info: {
@@ -15,12 +15,12 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3001',
-        description: 'Development server',
+        url: serverUrl,
+        description: 'Current server',
       },
       {
-        url: 'https://portfolio-backend-shy-butterfly-71.fly.dev',
-        description: 'Production server',
+        url: 'http://localhost:3001',
+        description: 'Development server',
       },
     ],
     components: {
@@ -39,6 +39,7 @@ const options = {
     },
   },
   apis: [join(__dirname, '../routes/*.js')],
-};
+});
 
-export const swaggerSpec = swaggerJsdoc(options);
+export const createSwaggerSpec = (serverUrl = 'http://localhost:3001') =>
+  swaggerJsdoc(buildOptions(serverUrl));
