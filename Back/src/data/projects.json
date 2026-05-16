@@ -1,11 +1,11 @@
 [
   {
     "title": "rainzShell",
-    "description": "A shell with core dependencies to devs working with C",
+    "description": "Working on a shell with core dependencies to devs working with C",
     "repo": "https://github.com/BernardoMeneses/rainzShell",
     "link": "",
     "image": "https://maker.pro/storage/2FxDrTW/2FxDrTW0iAcJwNGFAyp8MMnqgkDyqNvmh1LgeTSv.png",
-    "tech": [".sh", "C"]
+    "tech": [".sh", "C", "Makefile","Coming Soon..."]
   }
   
 ]
