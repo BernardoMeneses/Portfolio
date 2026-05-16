@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { basename, dirname, join } from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { createSwaggerSpec } from './config/swagger.js';
 
@@ -16,9 +19,13 @@ import skillsRoutes from './routes/skills.js';
 // Load environment variables
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 app.set('trust proxy', 1);
+const CV_DIR = join(__dirname, 'cv');
 
 const normalizeOrigin = (origin = '') => origin.trim().replace(/\/+$/, '');
 
@@ -78,6 +85,26 @@ app.options('*', cors(corsOptions));
 // Health check
 app.get('/', (req, res) => {
   res.json({ message: 'Portfolio API esta funcionando! Node.js Backend ativo.' });
+});
+
+// CV download
+app.get('/cv/:filename', (req, res) => {
+  const requestedFilename = req.params.filename;
+  const safeFilename = basename(requestedFilename);
+
+  if (requestedFilename !== safeFilename) {
+    return res.status(400).json({ error: 'Nome de ficheiro invalido' });
+  }
+
+  const filePath = join(CV_DIR, safeFilename);
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({
+      error: `CV nao encontrado no backend. Coloca o ficheiro em Back/src/cv/${safeFilename}`
+    });
+  }
+
+  return res.download(filePath, safeFilename);
 });
 
 // Swagger documentation

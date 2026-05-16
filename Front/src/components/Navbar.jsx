@@ -24,7 +24,7 @@ const Navbar = () => {
         <div className="navbar-content">
           <div className="navbar-logo">
             <Link to="/" className="logo-link">
-              <span className="logo-icon">BM</span>
+              <span className="logo-icon">⚡</span>
               <span className="logo-text">BM</span>
             </Link>
           </div>

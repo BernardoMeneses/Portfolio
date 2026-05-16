@@ -82,7 +82,7 @@ const Hero = () => {
         <div className="hero-content">
           <div className="hero-text">
             <div className="hero-badge">
-              <span>Hello, devs!!</span>
+              <span>👋 Hello, devs!!</span>
             </div>
 
             <h1 className="hero-title">
@@ -131,10 +131,10 @@ const Hero = () => {
                 <button className="btn-outline download-cv" onClick={downloadCV}>Download CV</button>
               </div>
               <div className="floating-elements">
-                <div className="element element-1">AI</div>
-                <div className="element element-2">UI</div>
-                <div className="element element-3">WEB</div>
-                <div className="element element-4">DEV</div>
+                <div className="element element-1">⚛️</div>
+                <div className="element element-2">🎮</div>
+                <div className="element element-3">💻</div>
+                <div className="element element-4">🚀</div>
               </div>
             </div>
           </div>
