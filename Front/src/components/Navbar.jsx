@@ -142,7 +142,7 @@ const Navbar = () => {
                         e.preventDefault()
                         const value = e.target.value
                         try {
-                          const res = await fetch(`${API_URL}/api/admin/login`, {
+                          const res = await fetch(`${API_URL}/api/auth/admin/login`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ password: value })

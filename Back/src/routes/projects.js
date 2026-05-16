@@ -1,7 +1,13 @@
 import express from 'express';
-import { readJsonFile, addItemToFile } from '../utils/fileStorage.js';
+import { readJsonFile, addItemToFile, writeJsonFile } from '../utils/fileStorage.js';
+import verifyAdminToken from '../middleware/adminAuth.js';
 
 const router = express.Router();
+
+const loadProjects = () => {
+  const projects = readJsonFile('projects.json');
+  return Array.isArray(projects) ? projects : [];
+};
 
 /**
  * @swagger
@@ -14,35 +20,12 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: List of projects
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   title:
- *                     type: string
- *                   description:
- *                     type: string
- *                   tech:
- *                     type: array
- *                     items:
- *                       type: string
- *                   repo:
- *                     type: string
- *                   image:
- *                     type: string
- *                   link:
- *                     type: string
  *       500:
  *         description: Server error
  */
-// Get all projects
 router.get('/', (req, res) => {
   try {
-    const projects = readJsonFile('projects.json');
-    res.json(projects);
+    res.json(loadProjects());
   } catch (error) {
     console.error('Get projects error:', error);
     res.status(500).json({ error: 'Erro ao buscar projetos' });
@@ -56,57 +39,18 @@ router.get('/', (req, res) => {
  *     summary: Add new project (admin only)
  *     tags:
  *       - Projects
- *     description: Create a new portfolio project
  *     security:
  *       - AdminToken: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - title
- *               - description
- *               - tech
- *               - repo
- *               - image
- *             properties:
- *               title:
- *                 type: string
- *                 example: "My Project"
- *               description:
- *                 type: string
- *                 example: "Project description"
- *               tech:
- *                 type: array
- *                 items:
- *                   type: string
- *                 example: ["React", "Node.js"]
- *               repo:
- *                 type: string
- *                 example: "https://github.com/user/project"
- *               image:
- *                 type: string
- *                 example: "project-image.jpg"
- *               link:
- *                 type: string
- *                 example: "https://project-link.com"
  *     responses:
  *       201:
  *         description: Project created successfully
- *       400:
- *         description: Missing required fields
- *       500:
- *         description: Server error
  */
-// Add new project (admin endpoint)
-router.post('/', (req, res) => {
+router.post('/', verifyAdminToken, (req, res) => {
   try {
     const { title, description, tech, repo, image, link } = req.body;
 
     if (!title || !description || !tech || !repo || !image) {
-      return res.status(400).json({ error: 'Campos obrigatórios faltando' });
+      return res.status(400).json({ error: 'Campos obrigatorios faltando' });
     }
 
     const project = addItemToFile('projects.json', {
@@ -119,12 +63,103 @@ router.post('/', (req, res) => {
     });
 
     res.status(201).json({
-      message: 'Projeto adicionado com sucesso!',
+      message: 'Projeto adicionado com sucesso',
       project
     });
   } catch (error) {
     console.error('Add project error:', error);
     res.status(500).json({ error: 'Erro ao adicionar projeto' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/projects/{index}:
+ *   put:
+ *     summary: Update a project by list index (admin only)
+ *     tags:
+ *       - Projects
+ *     security:
+ *       - AdminToken: []
+ *     responses:
+ *       200:
+ *         description: Project updated successfully
+ */
+router.put('/:index', verifyAdminToken, (req, res) => {
+  try {
+    const index = Number(req.params.index);
+    const { title, description, tech, repo, image, link } = req.body;
+
+    if (!Number.isInteger(index) || index < 0) {
+      return res.status(400).json({ error: 'Indice invalido' });
+    }
+
+    const projects = loadProjects();
+    const currentProject = projects[index];
+
+    if (!currentProject) {
+      return res.status(404).json({ error: 'Projeto nao encontrado' });
+    }
+
+    projects[index] = {
+      ...currentProject,
+      title: title ?? currentProject.title,
+      description: description ?? currentProject.description,
+      tech: tech ? (Array.isArray(tech) ? tech : [tech]) : currentProject.tech,
+      repo: repo ?? currentProject.repo,
+      image: image ?? currentProject.image,
+      link: link ?? currentProject.link
+    };
+
+    writeJsonFile('projects.json', projects);
+
+    res.json({
+      message: 'Projeto atualizado com sucesso',
+      project: projects[index]
+    });
+  } catch (error) {
+    console.error('Update project error:', error);
+    res.status(500).json({ error: 'Erro ao atualizar projeto' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/projects/{index}:
+ *   delete:
+ *     summary: Delete a project by list index (admin only)
+ *     tags:
+ *       - Projects
+ *     security:
+ *       - AdminToken: []
+ *     responses:
+ *       200:
+ *         description: Project deleted successfully
+ */
+router.delete('/:index', verifyAdminToken, (req, res) => {
+  try {
+    const index = Number(req.params.index);
+
+    if (!Number.isInteger(index) || index < 0) {
+      return res.status(400).json({ error: 'Indice invalido' });
+    }
+
+    const projects = loadProjects();
+    const [removedProject] = projects.splice(index, 1);
+
+    if (!removedProject) {
+      return res.status(404).json({ error: 'Projeto nao encontrado' });
+    }
+
+    writeJsonFile('projects.json', projects);
+
+    res.json({
+      message: 'Projeto removido com sucesso',
+      project: removedProject
+    });
+  } catch (error) {
+    console.error('Delete project error:', error);
+    res.status(500).json({ error: 'Erro ao remover projeto' });
   }
 });
 
