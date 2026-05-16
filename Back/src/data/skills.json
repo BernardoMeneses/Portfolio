@@ -45,13 +45,10 @@
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6ET0qtC0w9IlRu8JCaObxLH7Jab-Y1z6kjQ&s"
     },
     {
-      "name": "Claude Sonnet",
-      "image": "https://cdn.simpleicons.org/anthropic/ffffff"
+      "name": "Claude",
+      "image": "https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-avatar/avatars/claude.webp"
     },
-    {
-      "name": "Claude Oppus",
-      "image": "https://cdn.simpleicons.org/anthropic/ffffff"
-    },
+    
     {
       "name": "GitHub Copilot",
       "image": "https://cdn.simpleicons.org/github/ffffff"
@@ -61,8 +58,8 @@
       "image": "https://cdn.simpleicons.org/google/ffffff"
     },
     {
-      "name": "Nano Banana",
-      "image": "https://nanobanana.im/logo.png"
+      "name": "Dokie",
+      "image": "https://pbs.twimg.com/profile_images/1978848503771082752/D2J1uxcJ_400x400.jpg"
     }
      ],
   "dbStack": [
