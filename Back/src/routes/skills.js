@@ -18,6 +18,16 @@ const loadSkills = () => {
 
 const validateCategory = (category) => VALID_CATEGORIES.includes(category);
 
+const sendRouteError = (res, error, fallbackMessage) => {
+  const status = error?.status || 500;
+  const message = error?.message || fallbackMessage;
+
+  res.status(status).json({
+    error: message,
+    code: error?.code || 'INTERNAL_ERROR'
+  });
+};
+
 /**
  * @swagger
  * /api/skills:
@@ -83,7 +93,7 @@ router.post('/', verifyAdminToken, (req, res) => {
     });
   } catch (error) {
     console.error('Add skill error:', error);
-    res.status(500).json({ error: 'Erro ao adicionar skill' });
+    sendRouteError(res, error, 'Erro ao adicionar skill');
   }
 });
 
@@ -133,7 +143,7 @@ router.put('/', verifyAdminToken, (req, res) => {
     });
   } catch (error) {
     console.error('Update skill error:', error);
-    res.status(500).json({ error: 'Erro ao atualizar skill' });
+    sendRouteError(res, error, 'Erro ao atualizar skill');
   }
 });
 
@@ -178,7 +188,7 @@ router.delete('/', verifyAdminToken, (req, res) => {
     });
   } catch (error) {
     console.error('Delete skill error:', error);
-    res.status(500).json({ error: 'Erro ao remover skill' });
+    sendRouteError(res, error, 'Erro ao remover skill');
   }
 });
 

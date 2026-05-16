@@ -5,11 +5,30 @@ import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const DATA_DIR = path.join(__dirname, '../data');
+const DEFAULT_DATA_DIR = path.join(__dirname, '../data');
+const DATA_DIR = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : DEFAULT_DATA_DIR;
 
-// Ensure data directory exists
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+export class StorageWriteError extends Error {
+  constructor(message, options = {}) {
+    super(message);
+    this.name = 'StorageWriteError';
+    this.status = options.status || 503;
+    this.code = options.code || 'STORAGE_WRITE_UNAVAILABLE';
+    this.cause = options.cause;
+  }
+}
+
+const isReadOnlyStorageError = (error) =>
+  ['EROFS', 'EACCES', 'EPERM'].includes(error?.code);
+
+try {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+} catch (error) {
+  console.warn(`Storage directory setup warning for ${DATA_DIR}:`, error.message);
 }
 
 /**
@@ -24,7 +43,6 @@ export function readJsonFile(filename) {
     return JSON.parse(data);
   } catch (error) {
     console.error(`Error reading ${filename}:`, error);
-    // Return empty array for arrays, empty object for objects
     return filename.includes('projects') || filename.includes('recommendations') ? [] : {};
   }
 }
@@ -41,7 +59,18 @@ export function writeJsonFile(filename, data) {
     return true;
   } catch (error) {
     console.error(`Error writing ${filename}:`, error);
-    throw error;
+
+    if (isReadOnlyStorageError(error)) {
+      throw new StorageWriteError(
+        'Este deploy do backend esta em armazenamento read-only. No Vercel nao da para guardar alteracoes em ficheiros JSON locais.',
+        { cause: error, code: 'READ_ONLY_FILESYSTEM' }
+      );
+    }
+
+    throw new StorageWriteError(
+      `Nao foi possivel guardar ${filename}.`,
+      { cause: error }
+    );
   }
 }
 
@@ -57,15 +86,14 @@ export function addItemToFile(filename, item) {
     if (!Array.isArray(data)) {
       data = [];
     }
-    
-    // Add id and timestamp
+
     const newItem = {
       id: Date.now(),
       createdAt: new Date().toISOString(),
       ...item
     };
-    
-    data.unshift(newItem); // Add to beginning
+
+    data.unshift(newItem);
     writeJsonFile(filename, data);
     return newItem;
   } catch (error) {

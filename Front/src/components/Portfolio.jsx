@@ -6,6 +6,20 @@ import { API_URL } from '../config/api'
 import { useCallback } from 'react'
 import { useToast } from './ToastProvider'
 
+const getApiErrorMessage = async (response, fallbackMessage) => {
+  try {
+    const data = await response.json()
+    return data?.error || data?.message || fallbackMessage
+  } catch (error) {
+    try {
+      const text = await response.text()
+      return text || fallbackMessage
+    } catch (readError) {
+      return fallbackMessage
+    }
+  }
+}
+
 const Portfolio = () => {
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
@@ -14,8 +28,8 @@ const Portfolio = () => {
   const fetchProjects = useCallback(() => {
     setLoading(true)
     fetch(`${API_URL}/api/projects`)
-      .then(response => {
-        if (!response.ok) throw new Error('Failed to fetch projects')
+      .then(async response => {
+        if (!response.ok) throw new Error(await getApiErrorMessage(response, 'Failed to fetch projects'))
         return response.json()
       })
       .then(data => {
@@ -60,8 +74,8 @@ const Portfolio = () => {
       },
       body: JSON.stringify(payload)
     })
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to add project')
+      .then(async res => {
+        if (!res.ok) throw new Error(await getApiErrorMessage(res, 'Failed to add project'))
         return res.json()
       })
       .then(() => {
@@ -102,8 +116,8 @@ const Portfolio = () => {
       },
       body: JSON.stringify(payload)
     })
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to edit project')
+      .then(async res => {
+        if (!res.ok) throw new Error(await getApiErrorMessage(res, 'Failed to edit project'))
         return res.json()
       })
       .then(() => {
@@ -195,7 +209,7 @@ const Portfolio = () => {
                   })
                   if (!res.ok) {
                     let msg = 'Failed to remove project'
-                    try { const j = await res.json(); msg = j.detail || j.message || JSON.stringify(j) } catch(e){ msg = await res.text().catch(()=>msg) }
+                    try { const j = await res.json(); msg = j.error || j.detail || j.message || JSON.stringify(j) } catch(e){ msg = await res.text().catch(()=>msg) }
                     throw new Error(msg)
                   }
                   fetchProjects()

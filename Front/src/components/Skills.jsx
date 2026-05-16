@@ -3,6 +3,20 @@ import './Styles/Skills.scss'
 import { API_URL } from '../config/api'
 import { useToast } from './ToastProvider'
 
+const getApiErrorMessage = async (response, fallbackMessage) => {
+  try {
+    const data = await response.json()
+    return data?.error || data?.message || fallbackMessage
+  } catch (error) {
+    try {
+      const text = await response.text()
+      return text || fallbackMessage
+    } catch (readError) {
+      return fallbackMessage
+    }
+  }
+}
+
 const Skills = () => {
   const [skills, setSkills] = useState([])
   const [dbStack, setDbStack] = useState([])
@@ -13,8 +27,8 @@ const Skills = () => {
 
   useEffect(() => {
     fetch(`${API_URL}/api/skills`)
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch skills')
+      .then(async res => {
+        if (!res.ok) throw new Error(await getApiErrorMessage(res, 'Failed to fetch skills'))
         return res.json()
       })
       .then(data => {
@@ -55,8 +69,8 @@ const Skills = () => {
       },
       body: JSON.stringify(payload)
     })
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to add skill')
+      .then(async res => {
+        if (!res.ok) throw new Error(await getApiErrorMessage(res, 'Failed to add skill'))
         return res.json()
       })
       .then(() => {
@@ -114,7 +128,7 @@ const Skills = () => {
                       })
                       if (!res.ok) {
                         let msg = 'Failed to remove skill'
-                        try { const j = await res.json(); msg = j.detail || j.message || JSON.stringify(j) } catch(e){ msg = await res.text().catch(()=>msg) }
+                        try { const j = await res.json(); msg = j.error || j.detail || j.message || JSON.stringify(j) } catch(e){ msg = await res.text().catch(()=>msg) }
                         throw new Error(msg)
                       }
                       const data = await (await fetch(`${API_URL}/api/skills`)).json()
@@ -139,7 +153,7 @@ const Skills = () => {
                         headers: { 'Content-Type': 'application/json', 'X-ADMIN-TOKEN': adminToken || '' },
                         body: JSON.stringify({ category: editing.category, name: editing.originalName, skill: editing.skill })
                       })
-                      if (!res.ok) throw new Error('Failed to edit skill')
+                      if (!res.ok) throw new Error(await getApiErrorMessage(res, 'Failed to edit skill'))
                       const data = await (await fetch(`${API_URL}/api/skills`)).json()
                       setSkills((data && data.stack) || [])
                       setDbStack((data && data.dbStack) || [])
@@ -190,7 +204,7 @@ const Skills = () => {
                                 })
                                 if (!res.ok) {
                                   let msg = 'Failed to remove skill'
-                                  try { const j = await res.json(); msg = j.detail || j.message || JSON.stringify(j) } catch(e){ msg = await res.text().catch(()=>msg) }
+                                  try { const j = await res.json(); msg = j.error || j.detail || j.message || JSON.stringify(j) } catch(e){ msg = await res.text().catch(()=>msg) }
                                   throw new Error(msg)
                                 }
                                 // reload skills
@@ -218,7 +232,7 @@ const Skills = () => {
                             headers: { 'Content-Type': 'application/json', 'X-ADMIN-TOKEN': adminToken || '' },
                             body: JSON.stringify({ category: editing.category, name: editing.originalName, skill: editing.skill })
                           })
-                          if (!res.ok) throw new Error('Failed to edit skill')
+                          if (!res.ok) throw new Error(await getApiErrorMessage(res, 'Failed to edit skill'))
                           const data = await (await fetch(`${API_URL}/api/skills`)).json()
                           setSkills((data && data.stack) || [])
                           setDbStack((data && data.dbStack) || [])
@@ -271,7 +285,7 @@ const Skills = () => {
                               })
                               if (!res.ok) {
                                 let msg = 'Failed to remove skill'
-                                try { const j = await res.json(); msg = j.detail || j.message || JSON.stringify(j) } catch(e){ msg = await res.text().catch(()=>msg) }
+                                try { const j = await res.json(); msg = j.error || j.detail || j.message || JSON.stringify(j) } catch(e){ msg = await res.text().catch(()=>msg) }
                                 throw new Error(msg)
                               }
                               const data = await (await fetch(`${API_URL}/api/skills`)).json()
@@ -295,7 +309,7 @@ const Skills = () => {
                             headers: { 'Content-Type': 'application/json', 'X-ADMIN-TOKEN': adminToken || '' },
                             body: JSON.stringify({ category: editing.category, name: editing.originalName, skill: editing.skill })
                           })
-                          if (!res.ok) throw new Error('Failed to edit skill')
+                          if (!res.ok) throw new Error(await getApiErrorMessage(res, 'Failed to edit skill'))
                           const data = await (await fetch(`${API_URL}/api/skills`)).json()
                           setSkills((data && data.stack) || [])
                           setDbStack((data && data.dbStack) || [])
@@ -348,7 +362,7 @@ const Skills = () => {
                           })
                           if (!res.ok) {
                             let msg = 'Failed to remove skill'
-                            try { const j = await res.json(); msg = j.detail || j.message || JSON.stringify(j) } catch(e){ msg = await res.text().catch(()=>msg) }
+                            try { const j = await res.json(); msg = j.error || j.detail || j.message || JSON.stringify(j) } catch(e){ msg = await res.text().catch(()=>msg) }
                             throw new Error(msg)
                           }
                           const data = await (await fetch(`${API_URL}/api/skills`)).json()
@@ -372,7 +386,7 @@ const Skills = () => {
                             headers: { 'Content-Type': 'application/json', 'X-ADMIN-TOKEN': adminToken || '' },
                             body: JSON.stringify({ category: editing.category, name: editing.originalName, skill: editing.skill })
                           })
-                          if (!res.ok) throw new Error('Failed to edit skill')
+                          if (!res.ok) throw new Error(await getApiErrorMessage(res, 'Failed to edit skill'))
                           const data = await (await fetch(`${API_URL}/api/skills`)).json()
                           setSkills((data && data.stack) || [])
                           setDbStack((data && data.dbStack) || [])

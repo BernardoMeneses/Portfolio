@@ -4,6 +4,16 @@ import { readJsonFile, addItemToFile } from '../utils/fileStorage.js';
 
 const router = express.Router();
 
+const sendRouteError = (res, error, fallbackMessage) => {
+  const status = error?.status || 500;
+  const message = error?.message || fallbackMessage;
+
+  res.status(status).json({
+    error: message,
+    code: error?.code || 'INTERNAL_ERROR'
+  });
+};
+
 /**
  * @swagger
  * /api/recommendations:
@@ -15,34 +25,16 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: List of recommendations
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   name:
- *                     type: string
- *                   text:
- *                     type: string
- *                   avatar:
- *                     type: string
- *                   username:
- *                     type: string
- *                   provider:
- *                     type: string
  *       500:
  *         description: Server error
  */
-// Get all recommendations
 router.get('/', (req, res) => {
   try {
     const recommendations = readJsonFile('recommendations.json');
     res.json(recommendations);
   } catch (error) {
     console.error('Get recommendations error:', error);
-    res.status(500).json({ error: 'Erro ao buscar recomendações' });
+    res.status(500).json({ error: 'Erro ao buscar recomendacoes' });
   }
 });
 
@@ -80,69 +72,64 @@ router.get('/', (req, res) => {
  *       401:
  *         description: Invalid token
  */
-// Add new recommendation
 router.post('/', async (req, res) => {
   try {
     const { text, github_token, google_token } = req.body;
 
     if (!text) {
-      return res.status(400).json({ error: 'Texto da recomendação é obrigatório' });
+      return res.status(400).json({ error: 'Texto da recomendacao e obrigatorio' });
     }
 
-    let user_data = null;
+    let userData = null;
     let provider = null;
-    let google_data = null;
+    let googleData = null;
 
-    // Verify GitHub token
     if (github_token) {
       try {
         const response = await axios.get('https://api.github.com/user', {
           headers: { Authorization: `token ${github_token}` }
         });
 
-        user_data = response.data;
+        userData = response.data;
         provider = 'github';
       } catch (error) {
-        return res.status(401).json({ error: 'Token GitHub inválido' });
+        return res.status(401).json({ error: 'Token GitHub invalido' });
       }
-    }
-    // Verify Google token
-    else if (google_token) {
+    } else if (google_token) {
       try {
         const response = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
           headers: { Authorization: `Bearer ${google_token}` }
         });
 
-        google_data = response.data;
-        user_data = {
-          name: google_data.name || 'Usuário Google',
-          login: `google_${google_data.id}`,
-          avatar_url: google_data.picture || '',
-          email: google_data.email || ''
+        googleData = response.data;
+        userData = {
+          name: googleData.name || 'Usuario Google',
+          login: `google_${googleData.id}`,
+          avatar_url: googleData.picture || '',
+          email: googleData.email || ''
         };
         provider = 'google';
       } catch (error) {
-        return res.status(401).json({ error: 'Token Google inválido' });
+        return res.status(401).json({ error: 'Token Google invalido' });
       }
     } else {
-      return res.status(401).json({ error: 'Token não fornecido' });
+      return res.status(401).json({ error: 'Token nao fornecido' });
     }
 
-    // Create recommendation in JSON file
-    const username = provider === 'google' 
-      ? `google_${google_data.id}`
-      : user_data.login;
+    const username = provider === 'google'
+      ? `google_${googleData.id}`
+      : userData.login;
 
     const recommendation = addItemToFile('recommendations.json', {
-      name: user_data.name || user_data.login || 'Usuário',
-      text: text,
-      avatar: user_data.avatar_url || '',
-      username: username,
-      provider: provider
+      name: userData.name || userData.login || 'Usuario',
+      text,
+      avatar: userData.avatar_url || '',
+      username,
+      provider
     });
 
     res.status(201).json({
-      message: 'Recomendação adicionada com sucesso!',
+      message: 'Recomendacao adicionada com sucesso',
       recommendation: {
         id: recommendation.id,
         name: recommendation.name,
@@ -155,7 +142,7 @@ router.post('/', async (req, res) => {
     });
   } catch (error) {
     console.error('Add recommendation error:', error);
-    res.status(500).json({ error: 'Erro ao adicionar recomendação' });
+    sendRouteError(res, error, 'Erro ao adicionar recomendacao');
   }
 });
 

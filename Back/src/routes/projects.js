@@ -9,6 +9,16 @@ const loadProjects = () => {
   return Array.isArray(projects) ? projects : [];
 };
 
+const sendRouteError = (res, error, fallbackMessage) => {
+  const status = error?.status || 500;
+  const message = error?.message || fallbackMessage;
+
+  res.status(status).json({
+    error: message,
+    code: error?.code || 'INTERNAL_ERROR'
+  });
+};
+
 /**
  * @swagger
  * /api/projects:
@@ -68,7 +78,7 @@ router.post('/', verifyAdminToken, (req, res) => {
     });
   } catch (error) {
     console.error('Add project error:', error);
-    res.status(500).json({ error: 'Erro ao adicionar projeto' });
+    sendRouteError(res, error, 'Erro ao adicionar projeto');
   }
 });
 
@@ -119,7 +129,7 @@ router.put('/:index', verifyAdminToken, (req, res) => {
     });
   } catch (error) {
     console.error('Update project error:', error);
-    res.status(500).json({ error: 'Erro ao atualizar projeto' });
+    sendRouteError(res, error, 'Erro ao atualizar projeto');
   }
 });
 
@@ -159,7 +169,7 @@ router.delete('/:index', verifyAdminToken, (req, res) => {
     });
   } catch (error) {
     console.error('Delete project error:', error);
-    res.status(500).json({ error: 'Erro ao remover projeto' });
+    sendRouteError(res, error, 'Erro ao remover projeto');
   }
 });
 
