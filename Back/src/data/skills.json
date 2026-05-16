@@ -37,10 +37,6 @@
     {
       "name": "Git",
       "image": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg"
-    },
-    {
-      "name": "Unity",
-      "image": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/unity/unity-original.svg"
     }
   ],
   "aiStack": [
@@ -95,6 +91,10 @@
     {
       "name": "Caprover",
       "image": "https://cdn.simpleicons.org/caprover/ffffff"
+    },
+    {
+      "name": "Unity",
+      "image": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/unity/unity-original.svg"
     }
   ]
 }
