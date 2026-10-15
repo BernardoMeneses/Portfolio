@@ -15,6 +15,7 @@ import contactRoutes from './routes/contact.js';
 import statsRoutes from './routes/stats.js';
 import configRoutes from './routes/config.js';
 import skillsRoutes from './routes/skills.js';
+import guestbookRoutes from './routes/guestbook.js';
 
 // Load environment variables
 dotenv.config();
@@ -127,6 +128,7 @@ app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/config', configRoutes);
+app.use('/api/guestbook', guestbookRoutes);
 
 // 404 Handler
 app.use((req, res) => {

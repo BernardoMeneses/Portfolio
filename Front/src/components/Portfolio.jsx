@@ -1,95 +1,84 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import './Styles/Portfolio.scss'
 import './Styles/ProjectCard.scss'
 import ProjectCard from './ProjectCard'
-import { API_URL } from '../config/api'
+import ProjectDossier from './ProjectDossier'
 import { useToast } from './ToastProvider'
-
-const getApiErrorMessage = async (response, fallbackMessage) => {
-  try {
-    const data = await response.json()
-    return data?.error || data?.message || fallbackMessage
-  } catch (error) {
-    try {
-      const text = await response.text()
-      return text || fallbackMessage
-    } catch (readError) {
-      return fallbackMessage
-    }
-  }
-}
+import { useI18n } from '../context/Preferences'
+import { useAchievements } from '../context/Achievements'
+import { getProjects } from '../services/portfolioData'
 
 const Portfolio = () => {
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [openFile, setOpenFile] = useState(null)
   const { showToast } = useToast()
+  const { t } = useI18n()
+  const { unlock } = useAchievements()
+  const opened = useRef(new Set())
+  const trigger = useRef(null)
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        setLoading(true)
-        const response = await fetch(`${API_URL}/api/projects`)
+    let alive = true
 
-        if (!response.ok) {
-          throw new Error(await getApiErrorMessage(response, 'Failed to fetch projects'))
-        }
-
-        const data = await response.json()
-        setProjects(Array.isArray(data) ? data : [])
+    getProjects()
+      .then((data) => {
+        if (!alive) return
+        setProjects(data)
         setError(null)
-      } catch (err) {
+      })
+      .catch((err) => {
+        if (!alive) return
         console.error('Error fetching projects from backend:', err)
         setError(err.message)
-        showToast('Error fetching projects: ' + (err.message || ''), { type: 'error' })
-      } finally {
-        setLoading(false)
-      }
+        showToast(t('projects.fetchError', { msg: err.message || '' }), { type: 'error' })
+      })
+      .finally(() => alive && setLoading(false))
+
+    return () => {
+      alive = false
     }
+  }, [showToast, t])
 
-    fetchProjects()
-  }, [showToast])
-
-  if (loading) {
-    return (
-      <section id="portfolio" className="portfolio section">
-        <div className="container">
-          <h2 className="section-title">Projects</h2>
-          <div className="loading">Carregando projetos...</div>
-        </div>
-      </section>
-    )
+  const handleOpen = (project, index, button) => {
+    trigger.current = button
+    setOpenFile({ project, index })
+    opened.current.add(index)
+    if (opened.current.size >= projects.length) unlock('archivist')
   }
 
-  if (error) {
-    return (
-      <section id="portfolio" className="portfolio section">
-        <div className="container">
-          <h2 className="section-title">Projects</h2>
-          <div className="error">Erro ao carregar projetos: {error}</div>
-        </div>
-      </section>
+  const handleClose = useCallback(() => {
+    setOpenFile(null)
+    trigger.current?.focus()
+  }, [])
+
+  let body
+  if (loading) {
+    body = <div className="loading">{t('projects.loading')}</div>
+  } else if (error) {
+    body = <div className="error">{t('projects.error', { msg: error })}</div>
+  } else if (projects.length === 0) {
+    body = <div className="loading">{t('projects.empty')}</div>
+  } else {
+    body = (
+      <div className="ProjectsGrid">
+        {projects.map((project, index) => (
+          <ProjectCard key={project.id || index} project={project} index={index} onOpen={handleOpen} />
+        ))}
+      </div>
     )
   }
 
   return (
     <section id="portfolio" className="portfolio section">
       <div className="container">
-        <h2 className="section-title">Projects</h2>
-        <div className="ProjectsGrid">
-          {projects.map((project, index) => (
-            <ProjectCard
-              key={project.id || index}
-              title={project.title}
-              description={project.description}
-              repoLink={project.repo}
-              projectLink={project.link}
-              image={project.image}
-              tech={project.tech}
-            />
-          ))}
-        </div>
+        <h2 className="section-title">{t('projects.title')}</h2>
+        <p className="section-subtitle">{t('projects.subtitle')}</p>
+        {body}
       </div>
+
+      {openFile && <ProjectDossier project={openFile.project} index={openFile.index} onClose={handleClose} />}
     </section>
   )
 }

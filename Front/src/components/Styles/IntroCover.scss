@@ -1,0 +1,557 @@
+@use '../../Styles/variables' as *;
+
+// Timings mirror the constants in IntroCover.jsx
+$unstrap: 380ms;
+$open: 1250ms;
+$leave: 750ms;
+$ease-open: cubic-bezier(0.65, 0.05, 0.25, 1);
+
+$leather-noise: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E";
+
+$paper: #f3eee2;
+$ink: #2a2433;
+$mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+$hand: 'Caveat', 'Segoe Print', cursive;
+
+.intro {
+  // The desk is dark in both themes
+  --text: #ffffff;
+  --text-2: #b3b3b3;
+  --text-3: #8892b0;
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #0a0a0f;
+  transition: opacity $leave ease;
+
+  &--leaving {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+// A cutting mat on a dark desk
+.intro__desk {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(0deg, rgba($primary, 0.07) 0 1px, transparent 1px 48px),
+    repeating-linear-gradient(90deg, rgba($primary, 0.07) 0 1px, transparent 1px 48px),
+    radial-gradient(ellipse at 50% 42%, #1d1830 0%, #0a0a0f 72%);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 35%, rgba(0, 0, 0, 0.55) 100%);
+  mask-image: radial-gradient(ellipse at center, #000 35%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+.intro__scene {
+  // Folder width; --u is 1% of it so the artwork scales as one piece
+  --w: min(440px, 80vw, calc(72vh / 1.414));
+  --u: calc(var(--w) / 100);
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --spread: 1;
+  position: relative;
+  perspective: 2200px;
+  transition: transform $leave ease-in;
+
+  .intro--leaving & {
+    transform: scale(1.18);
+  }
+}
+
+// Lands on the desk once, on mount
+.intro__drop {
+  transform-style: preserve-3d;
+  animation: intro-drop 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes intro-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(1.12) rotate(-7deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.intro__folder {
+  position: relative;
+  width: var(--w);
+  aspect-ratio: 1 / 1.414;
+  cursor: pointer;
+  outline: none;
+  transform-style: preserve-3d;
+  transform: scale(var(--spread)) translateX(0) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) rotateZ(-1.5deg);
+  transition: transform 0.45s ease-out;
+
+  // Book opening: slide right so the two-page spread stays centred
+  .intro--opening &,
+  .intro--leaving & {
+    transform: scale(var(--spread)) translateX(50%) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+    transition: transform $open $ease-open;
+  }
+
+  &:focus-visible .intro__cover-front {
+    box-shadow: 0 0 0 3px $accent, 0 30px 60px rgba(0, 0, 0, 0.6);
+  }
+}
+
+@media (max-width: 720px) {
+  .intro--opening .intro__scene,
+  .intro--leaving .intro__scene {
+    --spread: 0.54;
+  }
+}
+
+/* ---------- First page (underneath) ---------- */
+
+.intro__page {
+  position: absolute;
+  inset: 0;
+  padding: calc(11 * var(--u)) calc(10 * var(--u));
+  border-radius: 3px 10px 10px 3px;
+  color: $ink;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.12), transparent 8%),
+    repeating-linear-gradient(180deg, transparent 0 calc(7 * var(--u) - 1px), rgba(108, 99, 255, 0.12) calc(7 * var(--u) - 1px) calc(7 * var(--u))),
+    $paper;
+  // stacked sheets peeking out + cast shadow
+  box-shadow:
+    2px 2px 0 #e4ddcd,
+    4px 4px 0 #d5cdbb,
+    6px 6px 0 #c6bda9,
+    18px 34px 60px rgba(0, 0, 0, 0.65);
+  display: flex;
+  flex-direction: column;
+}
+
+.intro__page-kicker {
+  font-family: $mono;
+  font-size: calc(3.4 * var(--u));
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: $primary;
+  margin-bottom: calc(6 * var(--u));
+}
+
+.intro__toc {
+  list-style: none;
+  display: grid;
+  gap: calc(4.2 * var(--u));
+  font-size: calc(6 * var(--u));
+  font-weight: 600;
+
+  li {
+    display: flex;
+    align-items: baseline;
+    gap: calc(3 * var(--u));
+  }
+
+  span {
+    font-family: $mono;
+    font-size: calc(3.4 * var(--u));
+    color: rgba($ink, 0.5);
+  }
+
+  i {
+    flex: 1;
+    border-bottom: 2px dotted rgba($ink, 0.25);
+  }
+}
+
+.intro__handwritten {
+  margin-top: auto;
+  font-family: $hand;
+  font-size: calc(8 * var(--u));
+  color: #5148d8;
+  transform: rotate(-3deg);
+}
+
+.intro__page-number {
+  align-self: flex-end;
+  font-family: $mono;
+  font-size: calc(3 * var(--u));
+  color: rgba($ink, 0.45);
+}
+
+/* ---------- Cover ---------- */
+
+.intro__cover {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  transform: translateZ(1px) rotateY(0deg);
+  transition: transform 0.5s cubic-bezier(0.3, 0.7, 0.3, 1);
+
+  // Hover teases the opening
+  .intro--idle .intro__folder:hover & {
+    transform: translateZ(1px) rotateY(-13deg);
+  }
+
+  .intro--opening &,
+  .intro--leaving & {
+    transform: translateZ(1px) rotateY(-178deg);
+    transition: transform $open $ease-open;
+  }
+}
+
+.intro__cover-front,
+.intro__cover-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.intro__cover-front {
+  border-radius: 3px 12px 12px 3px;
+  background:
+    radial-gradient(120% 70% at 28% 18%, rgba($accent, 0.2), transparent 60%),
+    radial-gradient(90% 90% at 100% 100%, rgba(0, 0, 0, 0.55), transparent 60%),
+    url($leather-noise),
+    linear-gradient(160deg, #241e36, #110e1b);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.5),
+    0 30px 60px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: calc(20 * var(--u)) calc(18 * var(--u)) calc(12 * var(--u)) calc(16 * var(--u));
+
+  // Stitching
+  &::before {
+    content: '';
+    position: absolute;
+    inset: calc(4 * var(--u)) calc(4 * var(--u)) calc(4 * var(--u)) calc(10 * var(--u));
+    border: 2px dashed rgba(255, 255, 255, 0.13);
+    border-radius: calc(2 * var(--u));
+    pointer-events: none;
+  }
+
+  // Hinge / spine
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: calc(7 * var(--u));
+    background:
+      linear-gradient(90deg, rgba(0, 0, 0, 0.55), rgba(255, 255, 255, 0.05) 70%, rgba(0, 0, 0, 0.4));
+    box-shadow: 1px 0 0 rgba(255, 255, 255, 0.05);
+  }
+}
+
+.intro__corner {
+  position: absolute;
+  width: calc(13 * var(--u));
+  height: calc(13 * var(--u));
+  background: linear-gradient(135deg, #e9e7f5, #8e89a8 45%, #4b4760 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+
+  &--tr {
+    top: 0;
+    right: 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+    border-top-right-radius: 12px;
+  }
+
+  &--br {
+    bottom: 0;
+    right: 0;
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    border-bottom-right-radius: 12px;
+  }
+}
+
+// Hot-foil monogram pressed into the leather
+.intro__monogram {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: calc(46 * var(--u));
+  aspect-ratio: 1;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.7),
+    0 1px 0 rgba(255, 255, 255, 0.07);
+  font-size: calc(20 * var(--u));
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  background: linear-gradient(110deg, #7d76ff 15%, #efe6ff 38%, $accent 52%, $primary 80%);
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: intro-foil 4.5s ease-in-out infinite;
+}
+
+@keyframes intro-foil {
+  0%,
+  100% {
+    background-position: 100% 0;
+  }
+  50% {
+    background-position: 0 0;
+  }
+}
+
+// Paper label in a metal card holder
+.intro__label {
+  margin-top: auto;
+  align-self: stretch;
+  display: grid;
+  gap: calc(1.2 * var(--u));
+  padding: calc(4 * var(--u)) calc(5 * var(--u));
+  background: $paper;
+  color: $ink;
+  font-family: $mono;
+  transform: rotate(-0.6deg);
+  box-shadow:
+    0 0 0 3px #a5a0bb,
+    0 0 0 4px #3f3b52,
+    0 3px 10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.intro__label-name {
+  font-size: calc(5.6 * var(--u));
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.intro__label-role {
+  font-size: calc(3.6 * var(--u));
+  color: #5148d8;
+}
+
+.intro__label-meta {
+  font-size: calc(3 * var(--u));
+  color: rgba($ink, 0.55);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.intro__stamp {
+  position: absolute;
+  top: calc(8 * var(--u));
+  left: calc(15 * var(--u));
+  padding: calc(1.2 * var(--u)) calc(2.4 * var(--u));
+  border: 2px solid rgba($secondary, 0.75);
+  border-radius: calc(1.5 * var(--u));
+  color: rgba($secondary, 0.8);
+  font-family: $mono;
+  font-size: calc(2.8 * var(--u));
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+  transform: rotate(-9deg);
+  opacity: 0.85;
+}
+
+/* ---------- Inside of the cover ---------- */
+
+.intro__cover-back {
+  transform: rotateY(180deg);
+  border-radius: 12px 3px 3px 12px;
+  background:
+    url($leather-noise),
+    linear-gradient(200deg, #1d1829, #120f1b);
+  box-shadow: inset -10px 0 20px rgba(0, 0, 0, 0.45);
+}
+
+.intro__pocket {
+  position: absolute;
+  left: calc(8 * var(--u));
+  right: calc(10 * var(--u));
+  bottom: calc(8 * var(--u));
+  height: 42%;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(0 28%, 100% 0, 100% 100%, 0 100%);
+    background: linear-gradient(180deg, #2c2540, #1a1527);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    border-radius: 0 0 calc(2 * var(--u)) calc(2 * var(--u));
+  }
+}
+
+.intro__card {
+  position: absolute;
+  left: calc(10 * var(--u));
+  top: calc(-14 * var(--u));
+  width: calc(58 * var(--u));
+  padding: calc(4 * var(--u));
+  display: grid;
+  gap: calc(0.8 * var(--u));
+  background: $paper;
+  color: $ink;
+  border-radius: calc(1.5 * var(--u));
+  transform: rotate(-6deg);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+
+  strong {
+    font-size: calc(4.4 * var(--u));
+  }
+
+  span {
+    font-size: calc(3.2 * var(--u));
+    color: #5148d8;
+  }
+
+  em {
+    font-family: $mono;
+    font-size: calc(2.6 * var(--u));
+    font-style: normal;
+    color: rgba($ink, 0.6);
+  }
+}
+
+.intro__sticky {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: calc(12 * var(--u));
+  right: calc(12 * var(--u));
+  width: calc(40 * var(--u));
+  padding: calc(4 * var(--u));
+  background: #ffe981;
+  color: #3b3320;
+  font-family: $hand;
+  font-size: calc(6 * var(--u));
+  line-height: 1.05;
+  transform: rotate(4deg);
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- Elastic strap ---------- */
+
+.intro__strap {
+  position: absolute;
+  top: -1.2%;
+  bottom: -1.2%;
+  right: 11%;
+  width: 4.6%;
+  border-radius: 3px;
+  transform: translateZ(3px);
+  background:
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 5px),
+    linear-gradient(90deg, #3b33a8, $primary 45%, #3b33a8);
+  box-shadow:
+    -3px 0 6px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+  transition: transform $unstrap cubic-bezier(0.5, 0, 0.75, 0), opacity $unstrap ease-in;
+
+  .intro--unstrap &,
+  .intro--opening &,
+  .intro--leaving & {
+    opacity: 0;
+    transform: translateZ(3px) translate(140%, 18%) rotate(14deg);
+  }
+}
+
+/* ---------- Chrome ---------- */
+
+.intro__hint {
+  position: absolute;
+  bottom: max(4vh, 20px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: $mono;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: $muted-text;
+  white-space: nowrap;
+  animation: intro-fade-in 0.6s 1s ease both;
+  transition: opacity 0.3s ease;
+
+  .intro:not(.intro--idle) & {
+    opacity: 0;
+  }
+}
+
+.intro__hint-touch {
+  display: none;
+}
+
+@media (hover: none) {
+  .intro__hint-pointer {
+    display: none;
+  }
+
+  .intro__hint-touch {
+    display: inline;
+  }
+}
+
+.intro__hint-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $accent;
+  animation: intro-pulse 1.6s ease-out infinite;
+}
+
+@keyframes intro-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba($accent, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 0 12px rgba($accent, 0);
+  }
+}
+
+@keyframes intro-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.intro__skip {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: $muted-text;
+  font-family: $mono;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+
+  &:hover,
+  &:focus-visible {
+    color: $primary-text;
+    border-color: rgba($accent, 0.6);
+    outline: none;
+  }
+
+  kbd {
+    padding: 0.05rem 0.35rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.7rem;
+  }
+}

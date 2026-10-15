@@ -1,6 +1,37 @@
 @use './variables' as *;
 @use './mixins' as *;
 
+:root,
+[data-theme='dark'] {
+  --bg: #0a0a0f;
+  --surface: #1a1a2e;
+  --surface-2: #16213e;
+  --text: #ffffff;
+  --text-2: #b3b3b3;
+  --text-3: #8892b0;
+  --line: rgba(255, 255, 255, 0.08);
+  --nav-glass: rgba(10, 10, 15, 0.9);
+  color-scheme: dark;
+}
+
+// "Paper" mode: the inside pages of the portfolio
+[data-theme='paper'] {
+  --bg: #f3eee2;
+  --surface: #fbf8f1;
+  --surface-2: #ebe4d3;
+  --text: #221d2e;
+  --text-2: #4d4659;
+  --text-3: #7a7287;
+  --line: rgba(34, 29, 46, 0.12);
+  --nav-glass: rgba(243, 238, 226, 0.9);
+  color-scheme: light;
+
+  body {
+    background-image: radial-gradient(rgba(34, 29, 46, 0.12) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -13,10 +44,11 @@ html {
 
 body {
   font-family: 'Poppins', sans-serif;
-  background: $dark-bg;
+  background-color: $dark-bg;
   color: $primary-text;
   line-height: 1.6;
   overflow-x: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 a {
@@ -64,6 +96,25 @@ ul {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.section-subtitle {
+  max-width: 560px;
+  margin: (-$spacing-md) auto $spacing-lg;
+  text-align: center;
+  color: $muted-text;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Shared form/button styles for admin controls */
@@ -123,3 +174,14 @@ select.input-field:focus {
   flex-wrap: wrap;
 }
 
+
+/* Konami code easter egg (see components/KonamiCode.jsx) */
+html.cheat-mode main {
+  animation: cheat-hue 4s linear infinite;
+}
+
+@keyframes cheat-hue {
+  to {
+    filter: hue-rotate(360deg);
+  }
+}

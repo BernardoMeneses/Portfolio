@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import './Styles/Contact.scss'
 import { API_URL } from '../config/api'
+import { useI18n } from '../context/Preferences'
 
 const Contact = () => {
+  const { t } = useI18n()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -33,16 +35,15 @@ const Contact = () => {
       })
       
       if (response.ok) {
-        const result = await response.json()
-        setSubmitStatus({ type: 'success', message: 'Message sent successfully! Thank you for contacting me.' })
+        setSubmitStatus({ type: 'success', message: t('contact.success') })
         setFormData({ name: '', email: '', message: '' })
       } else {
         const error = await response.json()
-        setSubmitStatus({ type: 'error', message: error.detail || 'Error sending message. Please try again.' })
+        setSubmitStatus({ type: 'error', message: error.detail || error.error || t('contact.error') })
       }
     } catch (error) {
       console.error('Error sending message:', error)
-      setSubmitStatus({ type: 'error', message: 'Error sending message. Please check your connection and try again.' })
+      setSubmitStatus({ type: 'error', message: t('contact.network') })
     }
     
     setIsSubmitting(false)
@@ -51,16 +52,12 @@ const Contact = () => {
   return (
     <section id="contact" className="contact section">
       <div className="container">
-        <h2 className="section-title">Let's Talk!</h2>
+        <h2 className="section-title">{t('contact.title')}</h2>
         
         <div className="contact-content">
           <div className="contact-info">
-            <h3>Get in Touch</h3>
-            <p>
-              I'm always open to new opportunities and interesting projects.
-              If you have an amazing idea or want to discuss a collaboration,
-              don't hesitate to contact me!
-            </p>
+            <h3>{t('contact.heading')}</h3>
+            <p>{t('contact.text')}</p>
             
             <div className="contact-methods">
               <div className="contact-method">
@@ -100,7 +97,7 @@ const Contact = () => {
               <input
                 type="text"
                 name="name"
-                placeholder="Your Name..."
+                placeholder={t('contact.name')}
                 value={formData.name}
                 onChange={handleChange}
                 required
@@ -112,7 +109,7 @@ const Contact = () => {
               <input
                 type="email"
                 name="email"
-                placeholder="Your Email..."
+                placeholder={t('contact.email')}
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -123,7 +120,7 @@ const Contact = () => {
             <div className="form-group">
               <textarea
                 name="message"
-                placeholder="Your Message..."
+                placeholder={t('contact.message')}
                 rows="5"
                 value={formData.message}
                 onChange={handleChange}
@@ -133,7 +130,7 @@ const Contact = () => {
             </div>
             
             <button type="submit" className="submit-btn" disabled={isSubmitting}>
-              {isSubmitting ? 'Sending...' : 'Send Message'}
+              {isSubmitting ? t('contact.sending') : t('contact.send')}
               <i className={`fas ${isSubmitting ? 'fa-spinner fa-spin' : 'fa-paper-plane'}`}></i>
             </button>
           </form>

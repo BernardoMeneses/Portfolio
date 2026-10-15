@@ -26,3 +26,8 @@
   position: relative;
   z-index: 1;
 }
+
+[data-theme='paper'] .animated-bg canvas {
+  mix-blend-mode: multiply;
+  opacity: 0.4;
+}

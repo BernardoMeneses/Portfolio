@@ -1,0 +1,64 @@
+@use 'sass:list';
+@use '../../Styles/variables' as *;
+
+$tab-colors: ($primary, $accent, #ff8fd1, #ffb86b, #ff6b6b, #7cf4d6, #ffe981);
+
+.binder-tabs {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transform: translateY(-50%);
+
+  @media (max-width: 1100px), (max-height: 640px) {
+    display: none;
+  }
+}
+
+.binder-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 7px 10px 16px;
+  border: none;
+  border-radius: 10px 0 0 10px;
+  background: var(--tab-color);
+  color: #120f1d;
+  cursor: pointer;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg) translateX(-8px);
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.35);
+  opacity: 0.55;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease;
+
+  &:hover,
+  &:focus-visible,
+  &.is-active {
+    opacity: 1;
+    transform: rotate(180deg) translateX(0);
+    outline: none;
+  }
+
+  @for $i from 1 through list.length($tab-colors) {
+    &--#{$i - 1} {
+      --tab-color: #{list.nth($tab-colors, $i)};
+    }
+  }
+}
+
+.binder-tab__num {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.65rem;
+  opacity: 0.7;
+}
+
+.binder-tab__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

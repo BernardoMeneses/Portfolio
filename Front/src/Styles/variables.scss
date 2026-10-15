@@ -1,20 +1,22 @@
 // Colors
-$dark-bg: #0a0a0f;
-$card-bg: #1a1a2e;
-$nav-bg: #16213e;
+// Surfaces and text follow the active theme (see the tokens in global.scss),
+// brand colours stay the same in both themes.
+$dark-bg: var(--bg);
+$card-bg: var(--surface);
+$nav-bg: var(--surface-2);
 $primary: #6c63ff;
 $accent: #a259ff;
 $secondary: #ff6b6b;
-$primary-text: #ffffff;
-$secondary-text: #b3b3b3;
-$muted-text: #8892b0;
+$primary-text: var(--text);
+$secondary-text: var(--text-2);
+$muted-text: var(--text-3);
 
 // Cores para autenticação
 $primary-color: #6c63ff;
 $accent-color: #a259ff;
-$background-color: #0a0a0f;
-$text-primary: #ffffff;
-$text-secondary: #b3b3b3;
+$background-color: var(--bg);
+$text-primary: var(--text);
+$text-secondary: var(--text-2);
 $success-color: #00b894;
 $error-color: #ff6b6b;
 

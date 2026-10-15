@@ -8,7 +8,7 @@
   background: 
     radial-gradient(circle at 20% 50%, rgba(108, 99, 255, 0.15) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(162, 89, 255, 0.15) 0%, transparent 50%),
-    $dark-bg;
+    transparent;
 
   .hero-content {
     display: grid;
@@ -93,7 +93,7 @@
 
         &:hover {
           background: $primary;
-          color: $primary-text;
+          color: #fff;
           transform: translateY(-3px);
           box-shadow: $shadow-medium;
         }
@@ -107,93 +107,19 @@
 
     .avatar-container {
       position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-md;
     }
 
     .download-cv {
-      display: inline-block;
-      margin-top: 0.6rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
       @include button-outline;
       text-decoration: none;
       font-size: 0.95rem;
-    }
-
-    .avatar {
-      width: 300px;
-      height: 300px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, $primary, $accent);
-      @include flex-center;
-      position: relative;
-      overflow: hidden;
-
-      &::before {
-        content: '';
-        position: absolute;
-        inset: 3px;
-        border-radius: 50%;
-        background: $card-bg;
-      }
-
-      .avatar-inner {
-        position: relative;
-        z-index: 2;
-        font-size: 4rem;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        border-radius: 50%;
-
-        .profile-image {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          border-radius: 50%;
-        }
-      }
-    }
-
-    .floating-elements {
-      .element {
-        position: absolute;
-        font-size: 2rem;
-        animation: float 3s ease-in-out infinite;
-
-        &.element-1 {
-          top: 20px;
-          left: -20px;
-          animation-delay: 0s;
-        }
-
-        &.element-2 {
-          top: 100px;
-          right: -30px;
-          animation-delay: 1s;
-        }
-
-        &.element-3 {
-          bottom: 100px;
-          left: -30px;
-          animation-delay: 2s;
-        }
-
-        &.element-4 {
-          bottom: 20px;
-          right: -20px;
-          animation-delay: 1.5s;
-        }
-      }
-    }
-  }
-
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-20px);
     }
   }
 
@@ -215,17 +141,6 @@
 
       .hero-socials {
         justify-content: center;
-      }
-    }
-
-    .hero-visual {
-      .avatar {
-        width: 250px;
-        height: 250px;
-
-        .avatar-inner {
-          font-size: 3rem;
-        }
       }
     }
   }

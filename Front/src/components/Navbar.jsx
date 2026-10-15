@@ -1,11 +1,23 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { usePreferences } from '../context/Preferences'
+import { useAchievements } from '../context/Achievements'
 import './Styles/Navbar.scss'
+
+const LINKS = [
+  { to: '/', key: 'home' },
+  { to: '/about', key: 'about' },
+  { to: '/skills', key: 'skills' },
+  { to: '/portfolio', key: 'projects' },
+  { to: '/contact', key: 'contact' },
+]
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
+  const { lang, setLang, theme, setTheme, t } = usePreferences()
+  const { unlock } = useAchievements()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,6 +29,16 @@ const Navbar = () => {
   }, [])
 
   const isActive = (path) => location.pathname === path
+
+  const toggleLang = () => {
+    setLang(lang === 'en' ? 'pt' : 'en')
+    unlock('polyglot')
+  }
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'paper' : 'dark')
+    unlock('paper')
+  }
 
   return (
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
@@ -30,51 +52,59 @@ const Navbar = () => {
           </div>
 
           <ul className="navbar-links">
-            <li>
-              <Link to="/" className={isActive('/') ? 'active' : ''}>
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link to="/about" className={isActive('/about') ? 'active' : ''}>
-                About
-              </Link>
-            </li>
-            <li>
-              <Link to="/skills" className={isActive('/skills') ? 'active' : ''}>
-                Skills
-              </Link>
-            </li>
-            <li>
-              <Link to="/portfolio" className={isActive('/portfolio') ? 'active' : ''}>
-                Portfolio
-              </Link>
-            </li>
-            <li>
-              <Link to="/contact" className={isActive('/contact') ? 'active' : ''}>
-                Contact
-              </Link>
-            </li>
+            {LINKS.map((link) => (
+              <li key={link.to}>
+                <Link to={link.to} className={isActive(link.to) ? 'active' : ''}>
+                  {t(`nav.${link.key}`)}
+                </Link>
+              </li>
+            ))}
           </ul>
 
-          <button
-            className={`navbar-toggle ${mobileOpen ? 'open' : ''}`}
-            aria-label="Toggle menu"
-            onClick={() => setMobileOpen(!mobileOpen)}
-          >
-            <span />
-            <span />
-            <span />
-          </button>
+          <div className="navbar-prefs">
+            <button
+              type="button"
+              className="navbar-pref navbar-lang"
+              onClick={toggleLang}
+              aria-label={t('nav.language')}
+              title={t('nav.language')}
+            >
+              <span className={lang === 'pt' ? 'is-on' : ''}>PT</span>
+              <span className={lang === 'en' ? 'is-on' : ''}>EN</span>
+            </button>
+
+            <button
+              type="button"
+              className="navbar-pref navbar-theme"
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? t('nav.themeToPaper') : t('nav.themeToDark')}
+              title={theme === 'dark' ? t('nav.themeToPaper') : t('nav.themeToDark')}
+            >
+              <i className={theme === 'dark' ? 'far fa-file-lines' : 'fas fa-moon'}></i>
+            </button>
+
+            <button
+              className={`navbar-toggle ${mobileOpen ? 'open' : ''}`}
+              aria-label={t('nav.menu')}
+              aria-expanded={mobileOpen}
+              onClick={() => setMobileOpen(!mobileOpen)}
+            >
+              <span />
+              <span />
+              <span />
+            </button>
+          </div>
 
           {mobileOpen && (
             <div className="navbar-mobile">
               <ul>
-                <li><Link to="/" onClick={() => setMobileOpen(false)}>Home</Link></li>
-                <li><Link to="/about" onClick={() => setMobileOpen(false)}>About</Link></li>
-                <li><Link to="/skills" onClick={() => setMobileOpen(false)}>Skills</Link></li>
-                <li><Link to="/portfolio" onClick={() => setMobileOpen(false)}>Portfolio</Link></li>
-                <li><Link to="/contact" onClick={() => setMobileOpen(false)}>Contact</Link></li>
+                {LINKS.map((link) => (
+                  <li key={link.to}>
+                    <Link to={link.to} onClick={() => setMobileOpen(false)}>
+                      {t(`nav.${link.key}`)}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
           )}

@@ -1,0 +1,344 @@
+@use '../../Styles/variables' as *;
+@use '../../Styles/mixins' as *;
+
+$mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+$bug: #33c48d;
+$critical: #ff4d4d;
+
+/* ---------- Section card ---------- */
+
+.bughunt__card {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: $spacing-md;
+  align-items: center;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: $spacing-md;
+  border-radius: $border-radius-lg;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 184, 107, 0.08) 0 14px, transparent 14px 28px),
+    $card-bg;
+  border: 2px dashed rgba(255, 184, 107, 0.45);
+  text-align: left;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+
+  p {
+    color: $secondary-text;
+    line-height: 1.7;
+  }
+}
+
+.bughunt__preview {
+  position: relative;
+  height: 160px;
+  border-radius: $border-radius-md;
+  background:
+    linear-gradient(rgba($primary, 0.08) 1px, transparent 1px) 0 0 / 100% 20px,
+    var(--surface-2);
+  overflow: hidden;
+}
+
+.bughunt__preview-bug {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+
+  &--1 {
+    animation: preview-crawl-1 7s linear infinite;
+  }
+
+  &--2 {
+    animation: preview-crawl-2 5s linear infinite;
+  }
+
+  &--3 {
+    animation: preview-crawl-3 9s linear infinite;
+  }
+}
+
+@keyframes preview-crawl-1 {
+  0% { transform: translate(-50px, 100px) rotate(70deg); }
+  50% { transform: translate(110px, 40px) rotate(100deg); }
+  100% { transform: translate(260px, 90px) rotate(80deg); }
+}
+
+@keyframes preview-crawl-2 {
+  0% { transform: translate(240px, 10px) rotate(-110deg); }
+  100% { transform: translate(-60px, 120px) rotate(-100deg); }
+}
+
+@keyframes preview-crawl-3 {
+  0% { transform: translate(80px, 200px) rotate(0deg); }
+  100% { transform: translate(140px, -60px) rotate(20deg); }
+}
+
+.bughunt__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: $spacing-sm 0 $spacing-xs;
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.bughunt__best {
+  font-family: $mono;
+  font-size: 0.85rem;
+  color: $muted-text;
+
+  b {
+    color: #ffb86b;
+  }
+}
+
+.bughunt__controls {
+  font-family: $mono;
+  font-size: 0.72rem;
+  color: $muted-text;
+}
+
+/* ---------- Bug sprite ---------- */
+
+.bug-sprite {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.bug-sprite__legs path,
+.bug-sprite__antennae {
+  fill: none;
+  stroke: #1d2b24;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.bug-sprite__legs {
+  transform-origin: 20px 21px;
+  animation: bug-legs 0.14s steps(2) infinite alternate;
+}
+
+@keyframes bug-legs {
+  to {
+    transform: scaleY(0.82) skewX(6deg);
+  }
+}
+
+.bug-sprite__body {
+  fill: $bug;
+  stroke: #1d2b24;
+  stroke-width: 1.5;
+
+  &--critical {
+    fill: $critical;
+  }
+}
+
+.bug-sprite__head {
+  fill: #1d2b24;
+}
+
+.bug-sprite__split {
+  stroke: #1d2b24;
+  stroke-width: 1.4;
+}
+
+.bug-sprite__spot {
+  fill: rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- Game layer (over the whole page) ---------- */
+
+.bughunt-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  cursor: crosshair;
+  overflow: hidden;
+  touch-action: manipulation;
+}
+
+.bug {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 48px;
+  height: 48px;
+  padding: 4px;
+  cursor: pointer;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.35));
+
+  &--critical {
+    filter: drop-shadow(0 0 8px rgba($critical, 0.7));
+  }
+}
+
+.splat {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -22px;
+    top: -22px;
+    width: 44px;
+    height: 44px;
+    border-radius: 45% 55% 50% 48%;
+    background: radial-gradient(circle, rgba($bug, 0.85) 30%, rgba($bug, 0) 72%);
+    animation: splat 0.7s ease-out forwards;
+  }
+
+  span {
+    position: absolute;
+    left: -20px;
+    top: -14px;
+    width: 40px;
+    text-align: center;
+    font-family: $mono;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+    animation: splat-points 0.7s ease-out forwards;
+  }
+
+  &--critical::before {
+    background: radial-gradient(circle, rgba($critical, 0.85) 30%, rgba($critical, 0) 72%);
+  }
+}
+
+@keyframes splat {
+  from {
+    transform: scale(0.4);
+  }
+  to {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+@keyframes splat-points {
+  to {
+    transform: translateY(-36px);
+    opacity: 0;
+  }
+}
+
+.bughunt-hud {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 10px 8px 18px;
+  border-radius: 999px;
+  background: rgba(15, 12, 25, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cfcbe3;
+  font-family: $mono;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  cursor: default;
+
+  b {
+    color: #fff;
+  }
+
+  .is-hot b {
+    color: #ffb86b;
+  }
+
+  button {
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: transparent;
+    color: #fff;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  @media (max-width: 480px) {
+    gap: 8px;
+    font-size: 0.72rem;
+  }
+}
+
+.bughunt-result {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(400px, calc(100vw - 32px));
+  padding: $spacing-md;
+  border-radius: $border-radius-lg;
+  background: #15121f;
+  border: 1px solid rgba($accent, 0.4);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  color: #ece9f6;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  cursor: default;
+  animation: bughunt-pop 0.4s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+
+  h3 {
+    font-size: 1.4rem;
+  }
+
+  p {
+    color: #b9b4d6;
+  }
+}
+
+@keyframes bughunt-pop {
+  from {
+    transform: translate(-50%, -50%) scale(0.85);
+    opacity: 0;
+  }
+}
+
+.bughunt-result__score {
+  margin: 6px 0;
+  font-family: $mono;
+  font-size: 3.2rem;
+  font-weight: 700;
+  color: #ffb86b !important;
+  line-height: 1;
+}
+
+.bughunt-result__shipped {
+  font-family: $mono;
+  font-size: 0.85rem;
+}
+
+.bughunt-result__best {
+  margin-top: 6px;
+  font-weight: 700;
+  color: #ffe08a !important;
+}
+
+.bughunt-result__actions {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-xs;
+  margin-top: $spacing-sm;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bughunt__preview-bug,
+  .bug-sprite__legs {
+    animation: none;
+  }
+}

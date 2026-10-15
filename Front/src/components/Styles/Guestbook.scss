@@ -1,0 +1,259 @@
+@use '../../Styles/variables' as *;
+
+$mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+$hand: 'Caveat', 'Segoe Print', cursive;
+$notes: (
+  "yellow": #ffe981,
+  "pink": #ffb3d9,
+  "blue": #a8d8ff,
+  "green": #b8f2c8,
+  "purple": #d4c4ff,
+);
+
+// The back of the leather portfolio from the intro
+.backcover {
+  position: relative;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: $spacing-lg;
+  padding: $spacing-lg;
+  border-radius: 12px 4px 4px 12px;
+  background:
+    radial-gradient(100% 70% at 80% 10%, rgba($accent, 0.14), transparent 60%),
+    linear-gradient(200deg, #241e36, #110e1b);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  text-align: left;
+
+  // stitching
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 14px;
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    pointer-events: none;
+  }
+
+  @media (max-width: 860px) {
+    grid-template-columns: 1fr;
+    padding: $spacing-md;
+  }
+}
+
+/* ---------- Note pad (form) ---------- */
+
+.notepad {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-self: start;
+  padding: 28px 18px 18px;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 27px, rgba(108, 99, 255, 0.18) 27px 28px),
+    #fbf8f1;
+  color: #221d2e;
+  border-radius: 4px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4);
+  transform: rotate(-1.5deg);
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 4px 2px;
+    border: none;
+    border-bottom: 1.5px solid rgba(34, 29, 46, 0.25);
+    background: transparent;
+    color: #221d2e;
+    font-family: $hand;
+    font-size: 1.35rem;
+    line-height: 28px;
+
+    &:focus {
+      outline: none;
+      border-bottom-color: $primary;
+    }
+
+    &::placeholder {
+      color: rgba(34, 29, 46, 0.45);
+    }
+  }
+
+  textarea {
+    resize: none;
+    border-bottom: none;
+  }
+}
+
+.notepad__binding {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 14px;
+  background: repeating-linear-gradient(90deg, #3b3550 0 10px, #26213a 10px 20px);
+  border-radius: 4px 4px 0 0;
+}
+
+.notepad__count {
+  align-self: flex-end;
+  font-family: $mono;
+  font-size: 0.7rem;
+  color: rgba(34, 29, 46, 0.5);
+}
+
+.notepad__hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.notepad__colors {
+  display: flex;
+  gap: 8px;
+  border: none;
+}
+
+.swatch {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 2px solid rgba(34, 29, 46, 0.15);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+
+  input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  &:has(input:checked) {
+    border-color: #221d2e;
+    transform: scale(1.12) rotate(-6deg);
+  }
+
+  &:has(input:focus-visible) {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @each $name, $color in $notes {
+    &--#{$name} {
+      background: $color;
+    }
+  }
+}
+
+.notepad__submit {
+  margin-top: 4px;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* ---------- Board of notes ---------- */
+
+.board {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 22px 18px;
+  align-content: start;
+  max-height: 560px;
+  overflow-y: auto;
+  padding: 10px 6px 20px;
+}
+
+.board__empty {
+  grid-column: 1 / -1;
+  padding: $spacing-lg 0;
+  font-family: $hand;
+  font-size: 1.6rem;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+}
+
+.note {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 150px;
+  padding: 22px 14px 12px;
+  color: #2b2433;
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.35);
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 0.2s ease;
+
+  // tape
+  &::before {
+    content: '';
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    width: 64px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    transform: translateX(-50%) rotate(-3deg);
+  }
+
+  &:hover {
+    transform: rotate(0deg) scale(1.04);
+    z-index: 2;
+  }
+
+  blockquote {
+    font-family: $hand;
+    font-size: 1.35rem;
+    line-height: 1.15;
+    word-break: break-word;
+  }
+
+  figcaption {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  time {
+    font-family: $mono;
+    font-size: 0.65rem;
+    font-weight: 400;
+    opacity: 0.6;
+  }
+
+  @each $name, $color in $notes {
+    &--#{$name} {
+      background: $color;
+    }
+  }
+
+  &.is-new {
+    animation: note-stick 0.6s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+  }
+}
+
+@keyframes note-stick {
+  from {
+    opacity: 0;
+    transform: translateY(-60px) rotate(12deg) scale(1.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .note.is-new {
+    animation: none;
+  }
+}
