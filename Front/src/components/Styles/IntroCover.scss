@@ -272,19 +272,19 @@ $hand: 'Caveat', 'Segoe Print', cursive;
   }
 }
 
-// Hot-foil monogram pressed into the leather
+// Hot-foil monogram stamped down the spine
 .intro__monogram {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: calc(46 * var(--u));
-  aspect-ratio: 1;
-  border-radius: 50%;
-  box-shadow:
-    inset 0 2px 6px rgba(0, 0, 0, 0.7),
-    0 1px 0 rgba(255, 255, 255, 0.07);
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 0;
+  width: calc(7 * var(--u));
+  writing-mode: vertical-rl;
+  text-align: center;
+  transform: translateY(-50%) rotate(180deg);
   @include display-font;
-  font-size: calc(17 * var(--u));
+  font-size: calc(4.6 * var(--u));
+  letter-spacing: 0.15em;
   background: linear-gradient(110deg, #7d76ff 15%, #efe6ff 38%, $accent 52%, $primary 80%);
   background-size: 260% 100%;
   -webkit-background-clip: text;
@@ -301,6 +301,49 @@ $hand: 'Caveat', 'Segoe Print', cursive;
   50% {
     background-position: 0 0;
   }
+}
+
+// The owner's photo, taped onto the cover like a polaroid
+.intro__polaroid {
+  position: relative;
+  width: calc(50 * var(--u));
+  margin-top: calc(-6 * var(--u));
+  padding: calc(3 * var(--u)) calc(3 * var(--u)) 0;
+  background: #f7f3ea;
+  box-shadow:
+    0 calc(1.2 * var(--u)) calc(3 * var(--u)) rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  transform: rotate(-4deg);
+
+  img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    object-position: center 25%;
+    filter: saturate(0.9) contrast(1.05);
+  }
+
+  figcaption {
+    padding: calc(1 * var(--u)) 0 calc(1.6 * var(--u));
+    font-family: $hand;
+    font-size: calc(6.4 * var(--u));
+    line-height: 1;
+    text-align: center;
+    color: #5148d8;
+  }
+}
+
+// Strip of tape holding the photo
+.intro__tape {
+  position: absolute;
+  top: calc(-2.4 * var(--u));
+  left: 50%;
+  width: calc(20 * var(--u));
+  height: calc(5.5 * var(--u));
+  background: rgba(255, 255, 255, 0.42);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transform: translateX(-50%) rotate(3deg);
 }
 
 // Paper label in a metal card holder
@@ -342,8 +385,10 @@ $hand: 'Caveat', 'Segoe Print', cursive;
 
 .intro__stamp {
   position: absolute;
-  top: calc(8 * var(--u));
-  left: calc(15 * var(--u));
+  z-index: 1;
+  // in the gap between the photo and the label, so neither hides it
+  top: calc(75 * var(--u));
+  right: calc(22 * var(--u));
   padding: calc(1.2 * var(--u)) calc(2.4 * var(--u));
   border: 2px solid rgba($secondary, 0.75);
   border-radius: calc(1.5 * var(--u));

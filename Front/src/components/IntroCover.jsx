@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useI18n } from '../context/Preferences'
 import { useAchievements } from '../context/Achievements'
+import profileImage from '../assets/eu.jpg'
 import './Styles/IntroCover.scss'
 
 const STORAGE_KEY = 'bm:cover-opened'
@@ -167,7 +168,13 @@ const IntroCover = () => {
                 <span className="intro__corner intro__corner--tr" />
                 <span className="intro__corner intro__corner--br" />
 
-                <div className="intro__monogram">BM</div>
+                <span className="intro__monogram">BM</span>
+
+                <figure className="intro__polaroid">
+                  <span className="intro__tape" />
+                  <img src={profileImage} alt="" draggable="false" />
+                  <figcaption>{t('intro.photoCaption')}</figcaption>
+                </figure>
 
                 <div className="intro__label">
                   <span className="intro__label-name">Bernardo Meneses</span>
