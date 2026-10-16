@@ -1,20 +1,22 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n } from './Preferences'
+import AchievementStamp, { InkFilter } from '../components/AchievementStamp'
 import '../components/Styles/Achievements.scss'
 
-// Titles / descriptions live in translations under achievements.list.<id>
+// Titles / descriptions live in translations under achievements.list.<id>.
+// `ink` is the colour the stamp is printed in.
 export const ACHIEVEMENTS = [
-  { id: 'opened', icon: '📂', points: 10 },
-  { id: 'holo', icon: '✨', points: 10 },
-  { id: 'polyglot', icon: '🌍', points: 10 },
-  { id: 'paper', icon: '📄', points: 10 },
-  { id: 'collector', icon: '🎒', points: 20 },
-  { id: 'archivist', icon: '🗄️', points: 20 },
-  { id: 'firstBlood', icon: '🐞', points: 10 },
-  { id: 'exterminator', icon: '🔨', points: 30 },
-  { id: 'guest', icon: '📝', points: 30 },
-  { id: 'reader', icon: '📖', points: 20 },
-  { id: 'cheater', icon: '🎮', points: 50 },
+  { id: 'opened', ink: '#5b3fc4' },
+  { id: 'holo', ink: '#1f4f9a' },
+  { id: 'polyglot', ink: '#13806b' },
+  { id: 'paper', ink: '#8a5a12' },
+  { id: 'collector', ink: '#5b3fc4' },
+  { id: 'archivist', ink: '#1f4f9a' },
+  { id: 'firstBlood', ink: '#b3261e' },
+  { id: 'exterminator', ink: '#b3261e' },
+  { id: 'guest', ink: '#13806b' },
+  { id: 'reader', ink: '#8a5a12' },
+  { id: 'cheater', ink: '#8e2f6f' },
 ]
 
 const STORAGE_KEY = 'bm:achievements'
@@ -64,15 +66,16 @@ export const AchievementsProvider = ({ children }) => {
   return (
     <AchievementsContext.Provider value={value}>
       {children}
+      <InkFilter />
       <div className="achievement-live" role="status" aria-live="polite">
         {achievement && (
-          <div className="achievement-popup" key={achievement.id}>
-            <span className="achievement-popup__icon" aria-hidden="true">{achievement.icon}</span>
-            <span className="achievement-popup__text">
+          <div className="achievement-slip" key={achievement.id} style={{ '--ink': achievement.ink }}>
+            <AchievementStamp id={achievement.id} className="achievement-slip__stamp" />
+            <div className="achievement-slip__text">
               <small>{t('achievements.unlocked')}</small>
               <strong>{t(`achievements.list.${achievement.id}.title`)}</strong>
-            </span>
-            <span className="achievement-popup__points">G {achievement.points}</span>
+              <span>{t(`achievements.list.${achievement.id}.desc`)}</span>
+            </div>
           </div>
         )}
       </div>

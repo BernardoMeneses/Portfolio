@@ -1,174 +1,178 @@
 @use '../../Styles/variables' as *;
-@use '../../Styles/mixins' as *;
 
-$mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+// Achievements are rubber stamps collected in a little paper book
+$serif: 'Spectral', Georgia, 'Times New Roman', serif;
+$serif-sc: 'Spectral SC', 'Spectral', Georgia, serif;
+$paper: #f5efe2;
+$paper-ink: #2a2433;
+$paper-muted: #6c6378;
 
-/* ---------- Unlock popup ---------- */
+/* ---------- Stamp ---------- */
+
+.stamp {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  color: var(--ink, $paper-ink);
+}
+
+.stamp__ring-text {
+  font-family: $serif-sc;
+  font-size: 6.4px;
+  font-weight: 700;
+}
+
+.stamp--locked {
+  color: rgba($paper-ink, 0.26);
+}
+
+/* ---------- Unlock popup: a paper slip that gets stamped ---------- */
 
 .achievement-live {
   position: fixed;
   left: 50%;
-  bottom: 28px;
+  bottom: 24px;
   z-index: 9000;
   transform: translateX(-50%);
   pointer-events: none;
 }
 
-.achievement-popup {
+.achievement-slip {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 14px;
-  min-width: min(360px, 90vw);
-  padding: 10px 18px 10px 10px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #1c1830, #2a2346);
-  border: 1px solid rgba($accent, 0.45);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba($accent, 0.25);
-  color: #fff;
-  overflow: hidden;
-  animation: achievement-in 4.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  width: min(400px, calc(100vw - 32px));
+  padding: 14px 20px 14px 14px;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 21px, rgba(108, 99, 255, 0.1) 21px 22px),
+    $paper;
+  color: $paper-ink;
+  border-radius: 2px;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.45);
+  animation: slip-in-out 4.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+  // strip of tape holding the slip
+  &::before {
+    content: '';
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    width: 72px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+    transform: translateX(-50%) rotate(-2deg);
+  }
 }
 
-.achievement-popup__icon {
-  display: grid;
-  place-items: center;
-  width: 46px;
-  height: 46px;
+.achievement-slip__stamp {
   flex-shrink: 0;
-  border-radius: 50%;
-  background: linear-gradient(135deg, $primary, $accent);
-  font-size: 1.4rem;
-  animation: achievement-icon 4.2s ease both;
+  width: 66px;
+  transform: rotate(-8deg);
+  mix-blend-mode: multiply;
+  animation: stamp-slam 0.5s 0.35s cubic-bezier(0.3, 1.5, 0.5, 1) both;
 }
 
-.achievement-popup__text {
+.achievement-slip__text {
   display: grid;
-  flex: 1;
+  gap: 1px;
+  min-width: 0;
+  font-family: $serif;
   line-height: 1.25;
 
   small {
+    font-family: $serif-sc;
     font-size: 0.72rem;
-    color: #b9b4d6;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: $paper-muted;
   }
 
   strong {
-    @include display-font;
-    font-size: 0.92rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  span {
+    font-size: 0.85rem;
+    font-style: italic;
+    color: $paper-muted;
   }
 }
 
-.achievement-popup__points {
-  font-family: $mono;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #ffe08a;
-}
-
-// Grows from a circle, holds, then collapses back — like the console toast
-@keyframes achievement-in {
+@keyframes slip-in-out {
   0% {
-    opacity: 0;
-    clip-path: circle(0 at 33px 50%);
-    transform: translateY(20px);
+    transform: translateY(140%) rotate(-1deg);
   }
-  10% {
-    opacity: 1;
-    clip-path: circle(30px at 33px 50%);
-    transform: none;
-  }
-  22%,
-  86% {
-    clip-path: circle(150% at 33px 50%);
-  }
-  96% {
-    opacity: 1;
-    clip-path: circle(30px at 33px 50%);
+  9%,
+  88% {
+    transform: translateY(0) rotate(-1deg);
   }
   100% {
+    transform: translateY(140%) rotate(-1deg);
+  }
+}
+
+@keyframes stamp-slam {
+  0% {
     opacity: 0;
-    clip-path: circle(0 at 33px 50%);
+    transform: scale(2.3) rotate(-28deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.92) rotate(-6deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-8deg);
   }
 }
 
-@keyframes achievement-icon {
-  0%,
-  8% {
-    transform: scale(0.4) rotate(-90deg);
-  }
-  16% {
-    transform: scale(1.15) rotate(0);
-  }
-  22% {
-    transform: scale(1);
-  }
-}
+/* ---------- Navbar badge ---------- */
 
-@media (prefers-reduced-motion: reduce) {
-  .achievement-popup,
-  .achievement-popup__icon {
-    animation: none;
-  }
-}
-
-/* ---------- Trophy case ---------- */
-
-// Navbar badge: trophy, progress and a "something new" dot to spark curiosity
 .trophy-trigger {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   height: 34px;
-  padding: 0 12px 0 10px;
-  border: 1px solid rgba(#ffb347, 0.45);
+  padding: 0 13px 0 9px;
+  border: 1px solid var(--line);
   border-radius: 999px;
-  background: linear-gradient(135deg, rgba(#ffb347, 0.14), rgba($accent, 0.12));
-  color: $primary-text;
+  background: transparent;
+  color: $secondary-text;
   font: inherit;
   cursor: pointer;
-  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, color 0.2s ease;
 
   &:hover,
   &:focus-visible {
-    border-color: #ffb347;
-    box-shadow: 0 0 16px rgba(#ffb347, 0.35);
-    transform: translateY(-1px);
+    border-color: $accent;
+    color: $primary-text;
     outline: none;
   }
 
-  &.is-bumped {
-    animation: trophy-bump 0.9s cubic-bezier(0.3, 1.6, 0.5, 1);
+  &.is-bumped .trophy-trigger__seal {
+    animation: seal-thump 0.7s cubic-bezier(0.3, 1.6, 0.5, 1);
   }
 }
 
-.trophy-trigger__icon {
-  font-size: 1rem;
-  line-height: 1;
+.trophy-trigger__seal {
+  width: 19px;
+  height: 19px;
+  color: #d4a24c;
 }
 
 .trophy-trigger__count {
-  font-family: $mono;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.trophy-trigger__bar {
-  width: 38px;
-  height: 5px;
-  border-radius: 99px;
-  background: rgba(127, 127, 127, 0.25);
-  overflow: hidden;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $primary-text;
 
   span {
-    display: block;
-    height: 100%;
-    border-radius: inherit;
-    background: linear-gradient(90deg, #ffb347, #ffe08a);
-    transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-
-  @media (max-width: 480px) {
-    display: none;
+    font-weight: 400;
+    color: $muted-text;
   }
 }
 
@@ -176,38 +180,33 @@ $mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
   position: absolute;
   top: -2px;
   right: -2px;
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: $secondary;
+  background: #c8372d;
   box-shadow: 0 0 0 2px var(--bg);
-  animation: trophy-dot 1.6s ease-out infinite;
+  animation: seal-dot 1.8s ease-out infinite;
 }
 
-@keyframes trophy-bump {
-  30% {
-    transform: scale(1.25) rotate(-8deg);
+@keyframes seal-thump {
+  35% {
+    transform: scale(1.35) rotate(-14deg);
   }
-  60% {
-    transform: scale(0.95) rotate(4deg);
+  65% {
+    transform: scale(0.92) rotate(4deg);
   }
 }
 
-@keyframes trophy-dot {
+@keyframes seal-dot {
   0% {
-    box-shadow: 0 0 0 2px var(--bg), 0 0 0 2px rgba($secondary, 0.7);
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 2px rgba(200, 55, 45, 0.6);
   }
   100% {
-    box-shadow: 0 0 0 2px var(--bg), 0 0 0 10px rgba($secondary, 0);
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 9px rgba(200, 55, 45, 0);
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .trophy-trigger.is-bumped,
-  .trophy-trigger__dot {
-    animation: none;
-  }
-}
+/* ---------- Achievement book ---------- */
 
 .trophy-overlay {
   position: fixed;
@@ -216,88 +215,132 @@ $mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
   display: grid;
   place-items: center;
   padding: 16px;
-  background: rgba(5, 5, 10, 0.7);
+  background: rgba(5, 5, 10, 0.72);
   backdrop-filter: blur(4px);
 }
 
-.trophy-case {
-  width: min(520px, 100%);
-  max-height: 85vh;
-  overflow: auto;
-  padding: $spacing-md;
-  border-radius: $border-radius-lg;
-  background: $card-bg;
-  border: 1px solid var(--line);
-  box-shadow: $shadow-heavy;
-  color: $primary-text;
+.stamp-book {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: 86vh;
+  overflow-y: auto;
+  padding: 30px 32px 32px 44px;
+  border-radius: 3px 8px 8px 3px;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.12), transparent 22px),
+    repeating-linear-gradient(180deg, transparent 0 31px, rgba(108, 99, 255, 0.09) 31px 32px),
+    $paper;
+  color: $paper-ink;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
   text-align: left;
+
+  @media (max-width: 520px) {
+    padding: 24px 18px 24px 26px;
+  }
 }
 
-.trophy-case__head {
+.stamp-book__head {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: $spacing-sm;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba($paper-ink, 0.15);
 
   h3 {
-    @include display-font;
-    font-size: 1.2rem;
+    font-family: $serif-sc;
+    font-size: 1.55rem;
+    font-weight: 700;
+    line-height: 1.1;
   }
 
   p {
-    font-family: $mono;
-    font-size: 0.8rem;
-    color: $muted-text;
+    margin-top: 4px;
+    font-family: $serif;
+    font-style: italic;
+    color: $paper-muted;
   }
 }
 
-.trophy-case__close {
-  width: 34px;
-  height: 34px;
+.stamp-book__close {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba($paper-ink, 0.25);
   border-radius: 50%;
-  border: 1px solid var(--line);
   background: transparent;
-  color: $secondary-text;
+  color: $paper-ink;
   cursor: pointer;
-}
 
-.trophy-case__list {
-  display: grid;
-  gap: 8px;
+  svg {
+    width: 18px;
+    height: 18px;
+  }
 
-  li {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    border-radius: $border-radius-sm;
-    border: 1px solid var(--line);
-    opacity: 0.55;
-
-    &.is-unlocked {
-      opacity: 1;
-      border-color: rgba($accent, 0.4);
-      background: rgba($accent, 0.06);
-    }
+  &:hover,
+  &:focus-visible {
+    background: rgba($paper-ink, 0.07);
+    outline: none;
   }
 }
 
-.trophy-case__icon {
-  font-size: 1.4rem;
+.stamp-book__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 26px 18px;
+  margin-top: 22px;
+  list-style: none;
+
+  @media (max-width: 520px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 12px;
+  }
 }
 
-.trophy-case__text {
-  display: grid;
-  flex: 1;
-  line-height: 1.3;
+.stamp-book__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  font-family: $serif;
+
+  .stamp {
+    width: 100px;
+    margin-bottom: 6px;
+  }
+
+  &.is-unlocked .stamp {
+    transform: rotate(var(--tilt));
+    mix-blend-mode: multiply;
+  }
+
+  strong {
+    font-size: 0.98rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
 
   small {
-    color: $secondary-text;
+    font-size: 0.8rem;
+    font-style: italic;
+    line-height: 1.35;
+    color: $paper-muted;
+  }
+
+  &:not(.is-unlocked) strong {
+    color: rgba($paper-ink, 0.5);
   }
 }
 
-.trophy-case__points {
-  font-family: $mono;
-  font-size: 0.8rem;
-  color: $muted-text;
+@media (prefers-reduced-motion: reduce) {
+  .achievement-slip,
+  .achievement-slip__stamp,
+  .trophy-trigger.is-bumped .trophy-trigger__seal,
+  .trophy-trigger__dot {
+    animation: none;
+  }
 }

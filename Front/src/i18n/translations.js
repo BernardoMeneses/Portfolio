@@ -149,8 +149,8 @@ const translations = {
     achievements: {
       unlocked: 'Achievement unlocked',
       button: 'Achievements',
-      caseTitle: 'Trophy case',
-      progress: '{count} of {total} unlocked',
+      caseTitle: 'Achievement book',
+      progress: '{count} of {total} stamps collected',
       close: 'Close',
       list: {
         opened: { title: 'Opening Ceremony', desc: 'Opened the portfolio cover.' },
@@ -321,8 +321,8 @@ const translations = {
     achievements: {
       unlocked: 'Conquista desbloqueada',
       button: 'Conquistas',
-      caseTitle: 'Vitrine de troféus',
-      progress: '{count} de {total} desbloqueadas',
+      caseTitle: 'Caderneta de conquistas',
+      progress: '{count} de {total} carimbos recolhidos',
       close: 'Fechar',
       list: {
         opened: { title: 'Cerimónia de Abertura', desc: 'Abriste a capa do portefólio.' },
