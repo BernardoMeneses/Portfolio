@@ -2,66 +2,77 @@
 // Skills missing here still show up as "common" items without a proficiency bar.
 //   rarity: common | rare | epic | legendary
 //   level:  0–100 (proficiency bar)
+//   type:   language | framework | library | runtime | tool | database | engine | ai
+//           (falls back to the category: databases → database, tools → tool, AI → ai)
 //   flavor: optional item description, per language
 // These values are placeholders — adjust them to how you see your own stack.
 const skillMeta = {
   react: {
+    type: 'library',
     rarity: 'legendary',
     level: 85,
     flavor: { en: 'Re-renders reality on every state change.', pt: 'Volta a renderizar a realidade a cada mudança de estado.' },
   },
   javascript: {
+    type: 'language',
     rarity: 'legendary',
     level: 85,
     flavor: { en: "Ancient, chaotic, and somehow everywhere. '1' + 1 === '11'.", pt: "Antigo, caótico e, de alguma forma, em todo o lado. '1' + 1 === '11'." },
   },
   typescript: {
+    type: 'language',
     rarity: 'epic',
     level: 75,
     flavor: { en: 'JavaScript wearing armour. Blocks 90% of runtime surprises.', pt: 'JavaScript de armadura. Bloqueia 90% das surpresas em runtime.' },
   },
   flutter: {
+    type: 'framework',
     rarity: 'epic',
     level: 70,
     flavor: { en: 'One codebase, every screen.', pt: 'Uma base de código, todos os ecrãs.' },
   },
-  dart: { rarity: 'rare', level: 65 },
+  dart: { type: 'language', rarity: 'rare', level: 65 },
   'sass/scss': {
+    type: 'language',
     rarity: 'rare',
     level: 80,
     flavor: { en: 'CSS with a utility belt.', pt: 'CSS com cinto de ferramentas.' },
   },
   'node.js': {
+    type: 'runtime',
     rarity: 'epic',
     level: 75,
     flavor: { en: 'Lets JavaScript leave the browser and get a job on the server.', pt: 'Deixa o JavaScript sair do browser e arranjar emprego no servidor.' },
   },
-  python: { rarity: 'rare', level: 60 },
+  python: { type: 'language', rarity: 'rare', level: 60 },
   git: {
+    type: 'tool',
     rarity: 'epic',
     level: 80,
     flavor: { en: 'Save points for code. Never leave home without it.', pt: 'Save points para código. Nunca saias de casa sem ele.' },
   },
-  postgresql: { rarity: 'rare', level: 65 },
-  'sql lite': { rarity: 'common', level: 60 },
-  mysql: { rarity: 'rare', level: 65 },
+  postgresql: { type: 'database', rarity: 'rare', level: 65 },
+  'sql lite': { type: 'database', rarity: 'common', level: 60 },
+  mysql: { type: 'database', rarity: 'rare', level: 65 },
   docker: {
+    type: 'tool',
     rarity: 'rare',
     level: 60,
     flavor: { en: '"Works on my machine" — now shippable.', pt: '"Na minha máquina funciona" — agora em contentor.' },
   },
-  'vs code': { rarity: 'common', level: 90 },
-  caprover: { rarity: 'common', level: 55 },
+  'vs code': { type: 'tool', rarity: 'common', level: 90 },
+  caprover: { type: 'tool', rarity: 'common', level: 55 },
   unity: {
+    type: 'engine',
     rarity: 'rare',
     level: 55,
     flavor: { en: 'Where the gaming side quest began.', pt: 'Onde começou a side quest dos videojogos.' },
   },
-  chatgpt: { rarity: 'common', level: 80 },
-  claude: { rarity: 'common', level: 80 },
-  'github copilot': { rarity: 'common', level: 75 },
-  gemini: { rarity: 'common', level: 70 },
-  dokie: { rarity: 'common', level: 60 },
+  chatgpt: { type: 'ai', rarity: 'common', level: 80 },
+  claude: { type: 'ai', rarity: 'common', level: 80 },
+  'github copilot': { type: 'ai', rarity: 'common', level: 75 },
+  gemini: { type: 'ai', rarity: 'common', level: 70 },
+  dokie: { type: 'ai', rarity: 'common', level: 60 },
 }
 
 export const getSkillMeta = (name = '') => skillMeta[name.trim().toLowerCase()] || { rarity: 'common' }

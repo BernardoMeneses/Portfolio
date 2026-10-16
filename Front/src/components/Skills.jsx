@@ -8,6 +8,8 @@ import { getSkillMeta } from '../data/skillMeta'
 
 const CATEGORIES = ['stack', 'dbStack', 'tools', 'aiStack']
 const COLUMNS = 6
+// Type for skills without an explicit `type` in skillMeta
+const CATEGORY_TYPE = { dbStack: 'database', tools: 'tool', aiStack: 'ai' }
 
 const normalize = (value = '') => value.toLowerCase().replace(/[^a-z0-9+#]/g, '')
 
@@ -73,6 +75,7 @@ const Skills = () => {
   }
 
   const usedIn = selected ? projectsUsing(selected.name, projects) : []
+  const selectedType = selected && (selected.type || CATEGORY_TYPE[selected.category])
 
   return (
     <section id="skills" className="skills section">
@@ -127,7 +130,8 @@ const Skills = () => {
                   <div>
                     <h3 className="inspector__name">{selected.name}</h3>
                     <p className="inspector__type">
-                      {t(`skills.rarity.${selected.rarity}`)} · {t(`skills.types.${selected.category}`)}
+                      {t(`skills.rarity.${selected.rarity}`)}
+                      {selectedType && ` · ${t(`skills.types.${selectedType}`)}`}
                     </p>
                   </div>
                 </div>
