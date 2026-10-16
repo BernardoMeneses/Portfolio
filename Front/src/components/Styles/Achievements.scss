@@ -1,33 +1,49 @@
 @use '../../Styles/variables' as *;
+@use '../../Styles/mixins' as *;
 
-// Achievements are rubber stamps collected in a little paper book
-$serif: 'Spectral', Georgia, 'Times New Roman', serif;
-$serif-sc: 'Spectral SC', 'Spectral', Georgia, serif;
-$paper: #f5efe2;
-$paper-ink: #2a2433;
-$paper-muted: #6c6378;
+// Same rarity tiers / colours as the skills inventory
+.rarity--common { --rarity: #9aa0a6; }
+.rarity--rare { --rarity: #4da3ff; }
+.rarity--epic { --rarity: #{$accent}; }
+.rarity--legendary { --rarity: #ffb347; }
 
-/* ---------- Stamp ---------- */
+$panel-text: #ece9f6;
+$panel-muted: #a9a4c0;
+$panel-dim: #6f6888;
 
-.stamp {
+/* ---------- Hex medal ---------- */
+
+.badge {
   display: block;
   width: 100%;
   height: auto;
   overflow: visible;
-  color: var(--ink, $paper-ink);
+  color: var(--rarity, #{$accent});
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--rarity, #{$accent}) 65%, transparent));
 }
 
-.stamp__ring-text {
-  font-family: $serif-sc;
-  font-size: 6.4px;
-  font-weight: 700;
+.badge__core {
+  fill: #140c26;
 }
 
-.stamp--locked {
-  color: rgba($paper-ink, 0.26);
+.badge__facet {
+  fill: rgba(255, 255, 255, 0.07);
 }
 
-/* ---------- Unlock popup: a paper slip that gets stamped ---------- */
+.badge__icon {
+  color: #fff;
+}
+
+.badge--locked {
+  color: #3b3155;
+  filter: none;
+
+  .badge__icon {
+    color: $panel-dim;
+  }
+}
+
+/* ---------- Unlock toast ---------- */
 
 .achievement-live {
   position: fixed;
@@ -38,95 +54,102 @@ $paper-muted: #6c6378;
   pointer-events: none;
 }
 
-.achievement-slip {
+.ach-toast {
   position: relative;
   display: flex;
   align-items: center;
   gap: 14px;
-  width: min(400px, calc(100vw - 32px));
-  padding: 14px 20px 14px 14px;
+  width: min(420px, calc(100vw - 32px));
+  padding: 12px 18px 12px 12px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--rarity) 55%, transparent);
+  border-radius: 12px;
   background:
-    repeating-linear-gradient(180deg, transparent 0 21px, rgba(108, 99, 255, 0.1) 21px 22px),
-    $paper;
-  color: $paper-ink;
-  border-radius: 2px;
-  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.45);
-  animation: slip-in-out 4.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    radial-gradient(120% 120% at 0% 50%, color-mix(in srgb, var(--rarity) 22%, transparent), transparent 60%),
+    linear-gradient(135deg, #231546, #120a24);
+  color: $panel-text;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.5),
+    0 0 30px color-mix(in srgb, var(--rarity) 30%, transparent);
+  animation: ach-toast 4.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 
-  // strip of tape holding the slip
-  &::before {
+  // light sweep across the toast once the medal lands
+  &::after {
     content: '';
     position: absolute;
-    top: -9px;
-    left: 50%;
-    width: 72px;
-    height: 20px;
-    background: rgba(255, 255, 255, 0.5);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
-    transform: translateX(-50%) rotate(-2deg);
+    inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.14) 50%, transparent 65%);
+    transform: translateX(-120%);
+    animation: ach-sweep 0.9s 0.7s ease-out forwards;
+    pointer-events: none;
   }
 }
 
-.achievement-slip__stamp {
+.ach-toast__badge {
   flex-shrink: 0;
-  width: 66px;
-  transform: rotate(-8deg);
-  mix-blend-mode: multiply;
-  animation: stamp-slam 0.5s 0.35s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+  width: 58px;
+  animation: ach-slam 0.55s 0.3s cubic-bezier(0.3, 1.5, 0.5, 1) both;
 }
 
-.achievement-slip__text {
+.ach-toast__text {
   display: grid;
-  gap: 1px;
+  gap: 2px;
   min-width: 0;
-  font-family: $serif;
   line-height: 1.25;
 
   small {
-    font-family: $serif-sc;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: $paper-muted;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--rarity);
   }
 
   strong {
-    font-size: 1.1rem;
-    font-weight: 600;
+    @include display-font;
+    font-size: 0.98rem;
   }
 
   span {
-    font-size: 0.85rem;
-    font-style: italic;
-    color: $paper-muted;
+    font-size: 0.82rem;
+    color: $panel-muted;
   }
 }
 
-@keyframes slip-in-out {
+@keyframes ach-toast {
   0% {
-    transform: translateY(140%) rotate(-1deg);
+    opacity: 0;
+    transform: translateY(130%);
   }
   9%,
   88% {
-    transform: translateY(0) rotate(-1deg);
+    opacity: 1;
+    transform: translateY(0);
   }
   100% {
-    transform: translateY(140%) rotate(-1deg);
+    opacity: 0;
+    transform: translateY(130%);
   }
 }
 
-@keyframes stamp-slam {
+@keyframes ach-slam {
   0% {
     opacity: 0;
-    transform: scale(2.3) rotate(-28deg);
+    transform: scale(2) rotate(-30deg);
   }
   60% {
     opacity: 1;
-    transform: scale(0.92) rotate(-6deg);
+    transform: scale(0.9) rotate(6deg);
   }
   100% {
     opacity: 1;
-    transform: scale(1) rotate(-8deg);
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes ach-sweep {
+  to {
+    transform: translateX(220%);
   }
 }
 
@@ -145,24 +168,24 @@ $paper-muted: #6c6378;
   color: $secondary-text;
   font: inherit;
   cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:hover,
   &:focus-visible {
     border-color: $accent;
-    color: $primary-text;
+    box-shadow: 0 0 14px rgba($accent, 0.35);
     outline: none;
   }
 
-  &.is-bumped .trophy-trigger__seal {
-    animation: seal-thump 0.7s cubic-bezier(0.3, 1.6, 0.5, 1);
+  &.is-bumped .trophy-trigger__hex {
+    animation: hex-thump 0.7s cubic-bezier(0.3, 1.6, 0.5, 1);
   }
 }
 
-.trophy-trigger__seal {
+.trophy-trigger__hex {
   width: 19px;
   height: 19px;
-  color: #d4a24c;
+  color: #ffb347;
 }
 
 .trophy-trigger__count {
@@ -183,30 +206,30 @@ $paper-muted: #6c6378;
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #c8372d;
+  background: $accent;
   box-shadow: 0 0 0 2px var(--bg);
-  animation: seal-dot 1.8s ease-out infinite;
+  animation: hex-dot 1.8s ease-out infinite;
 }
 
-@keyframes seal-thump {
+@keyframes hex-thump {
   35% {
-    transform: scale(1.35) rotate(-14deg);
+    transform: scale(1.35) rotate(-20deg);
   }
   65% {
-    transform: scale(0.92) rotate(4deg);
+    transform: scale(0.92) rotate(6deg);
   }
 }
 
-@keyframes seal-dot {
+@keyframes hex-dot {
   0% {
-    box-shadow: 0 0 0 2px var(--bg), 0 0 0 2px rgba(200, 55, 45, 0.6);
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 2px rgba($accent, 0.7);
   }
   100% {
-    box-shadow: 0 0 0 2px var(--bg), 0 0 0 9px rgba(200, 55, 45, 0);
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 9px rgba($accent, 0);
   }
 }
 
-/* ---------- Achievement book ---------- */
+/* ---------- Achievements panel ---------- */
 
 .trophy-overlay {
   position: fixed;
@@ -215,65 +238,100 @@ $paper-muted: #6c6378;
   display: grid;
   place-items: center;
   padding: 16px;
-  background: rgba(5, 5, 10, 0.72);
+  background: rgba(5, 5, 12, 0.75);
   backdrop-filter: blur(4px);
 }
 
-.stamp-book {
+.ach-panel {
   position: relative;
-  width: min(720px, 100%);
+  width: min(760px, 100%);
   max-height: 86vh;
   overflow-y: auto;
-  padding: 30px 32px 32px 44px;
-  border-radius: 3px 8px 8px 3px;
+  padding: 26px 28px 30px;
+  border: 1px solid rgba($accent, 0.45);
+  border-radius: 14px;
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.12), transparent 22px),
-    repeating-linear-gradient(180deg, transparent 0 31px, rgba(108, 99, 255, 0.09) 31px 32px),
-    $paper;
-  color: $paper-ink;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+    radial-gradient(120% 60% at 50% 0%, rgba($primary, 0.22), transparent 60%),
+    linear-gradient(180deg, #1d1238, #120a24);
+  color: $panel-text;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba($primary, 0.25),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
   text-align: left;
 
+  // HUD corner brackets
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 2px solid $accent;
+    pointer-events: none;
+  }
+
+  &::before {
+    top: 8px;
+    left: 8px;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  &::after {
+    right: 8px;
+    bottom: 8px;
+    border-left: none;
+    border-top: none;
+  }
+
   @media (max-width: 520px) {
-    padding: 24px 18px 24px 26px;
+    padding: 22px 16px 24px;
   }
 }
 
-.stamp-book__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+.ach-panel__head {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
   gap: 16px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid rgba($paper-ink, 0.15);
 
   h3 {
-    font-family: $serif-sc;
-    font-size: 1.55rem;
-    font-weight: 700;
+    @include display-font;
+    font-size: 1.6rem;
     line-height: 1.1;
+    background: linear-gradient(135deg, $primary, $accent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   p {
-    margin-top: 4px;
-    font-family: $serif;
-    font-style: italic;
-    color: $paper-muted;
+    margin-top: 2px;
+    font-size: 0.9rem;
+    color: $panel-muted;
   }
 }
 
-.stamp-book__close {
+.ach-panel__percent {
+  @include display-font;
+  font-size: 1.4rem;
+  color: #ffb347;
+  text-shadow: 0 0 12px rgba(255, 179, 71, 0.45);
+}
+
+.ach-panel__close {
   display: grid;
   place-items: center;
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   padding: 0;
-  border: 1px solid rgba($paper-ink, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 50%;
   background: transparent;
-  color: $paper-ink;
+  color: $panel-text;
   cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   svg {
     width: 18px;
@@ -282,64 +340,105 @@ $paper-muted: #6c6378;
 
   &:hover,
   &:focus-visible {
-    background: rgba($paper-ink, 0.07);
+    border-color: $accent;
+    box-shadow: 0 0 12px rgba($accent, 0.4);
     outline: none;
   }
 }
 
-.stamp-book__grid {
+// Segmented XP bar
+.ach-panel__bar {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 26px 18px;
-  margin-top: 22px;
-  list-style: none;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 4px;
+  margin: 16px 0 22px;
 
-  @media (max-width: 520px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px 12px;
+  span {
+    height: 8px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.08);
+    transform: skewX(-20deg);
+  }
+
+  .is-filled {
+    background: linear-gradient(90deg, $primary, $accent);
+    box-shadow: 0 0 8px rgba($accent, 0.6);
   }
 }
 
-.stamp-book__item {
+.ach-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+  gap: 12px;
+  list-style: none;
+}
+
+.ach-card {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  text-align: center;
-  font-family: $serif;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
 
-  .stamp {
-    width: 100px;
-    margin-bottom: 6px;
+  &.is-unlocked {
+    border-color: color-mix(in srgb, var(--rarity) 45%, transparent);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--rarity) 14%, transparent), transparent 70%);
   }
+}
 
-  &.is-unlocked .stamp {
-    transform: rotate(var(--tilt));
-    mix-blend-mode: multiply;
-  }
+.ach-card__badge {
+  flex-shrink: 0;
+  width: 60px;
+}
+
+.ach-card__text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  line-height: 1.3;
 
   strong {
-    font-size: 0.98rem;
+    font-size: 1rem;
     font-weight: 600;
-    line-height: 1.2;
+    color: #fff;
   }
 
   small {
-    font-size: 0.8rem;
-    font-style: italic;
+    font-size: 0.82rem;
     line-height: 1.35;
-    color: $paper-muted;
+    color: $panel-muted;
   }
 
-  &:not(.is-unlocked) strong {
-    color: rgba($paper-ink, 0.5);
+  .ach-card:not(.is-unlocked) & {
+    strong {
+      color: #8d86a6;
+    }
+
+    small {
+      color: $panel-dim;
+    }
+  }
+}
+
+.ach-card__rarity {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rarity);
+
+  .ach-card:not(.is-unlocked) & {
+    color: $panel-dim;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .achievement-slip,
-  .achievement-slip__stamp,
-  .trophy-trigger.is-bumped .trophy-trigger__seal,
+  .ach-toast,
+  .ach-toast::after,
+  .ach-toast__badge,
+  .trophy-trigger.is-bumped .trophy-trigger__hex,
   .trophy-trigger__dot {
     animation: none;
   }

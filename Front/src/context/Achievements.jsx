@@ -1,22 +1,22 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n } from './Preferences'
-import AchievementStamp, { InkFilter } from '../components/AchievementStamp'
+import AchievementBadge from '../components/AchievementBadge'
 import '../components/Styles/Achievements.scss'
 
 // Titles / descriptions live in translations under achievements.list.<id>.
-// `ink` is the colour the stamp is printed in.
+// Rarity uses the same tiers (and colours) as the skills inventory.
 export const ACHIEVEMENTS = [
-  { id: 'opened', ink: '#5b3fc4' },
-  { id: 'holo', ink: '#1f4f9a' },
-  { id: 'polyglot', ink: '#13806b' },
-  { id: 'paper', ink: '#8a5a12' },
-  { id: 'collector', ink: '#5b3fc4' },
-  { id: 'archivist', ink: '#1f4f9a' },
-  { id: 'firstBlood', ink: '#b3261e' },
-  { id: 'exterminator', ink: '#b3261e' },
-  { id: 'guest', ink: '#13806b' },
-  { id: 'reader', ink: '#8a5a12' },
-  { id: 'cheater', ink: '#8e2f6f' },
+  { id: 'opened', rarity: 'common' },
+  { id: 'polyglot', rarity: 'common' },
+  { id: 'paper', rarity: 'common' },
+  { id: 'firstBlood', rarity: 'common' },
+  { id: 'holo', rarity: 'rare' },
+  { id: 'reader', rarity: 'rare' },
+  { id: 'guest', rarity: 'rare' },
+  { id: 'collector', rarity: 'epic' },
+  { id: 'archivist', rarity: 'epic' },
+  { id: 'exterminator', rarity: 'legendary' },
+  { id: 'cheater', rarity: 'legendary' },
 ]
 
 const STORAGE_KEY = 'bm:achievements'
@@ -66,13 +66,14 @@ export const AchievementsProvider = ({ children }) => {
   return (
     <AchievementsContext.Provider value={value}>
       {children}
-      <InkFilter />
       <div className="achievement-live" role="status" aria-live="polite">
         {achievement && (
-          <div className="achievement-slip" key={achievement.id} style={{ '--ink': achievement.ink }}>
-            <AchievementStamp id={achievement.id} className="achievement-slip__stamp" />
-            <div className="achievement-slip__text">
-              <small>{t('achievements.unlocked')}</small>
+          <div className={`ach-toast rarity--${achievement.rarity}`} key={achievement.id}>
+            <AchievementBadge id={achievement.id} className="ach-toast__badge" />
+            <div className="ach-toast__text">
+              <small>
+                {t('achievements.unlocked')} · {t(`skills.rarity.${achievement.rarity}`)}
+              </small>
               <strong>{t(`achievements.list.${achievement.id}.title`)}</strong>
               <span>{t(`achievements.list.${achievement.id}.desc`)}</span>
             </div>

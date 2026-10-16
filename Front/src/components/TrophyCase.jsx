@@ -2,13 +2,11 @@ import React, { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ACHIEVEMENTS, useAchievements } from '../context/Achievements'
 import { useI18n } from '../context/Preferences'
-import AchievementStamp from './AchievementStamp'
+import AchievementBadge from './AchievementBadge'
 
 const SEEN_KEY = 'bm:trophies-seen'
-// Hand-placed look: every stamp lands at a slightly different angle
-const TILTS = [-14, 9, -5, 16, -11, 6, -17, 12, -7, 10, -3]
 
-// How many unlocks the visitor has already looked at (-1 = never opened the book)
+// How many unlocks the visitor has already looked at (-1 = never opened the panel)
 const readSeen = () => {
   try {
     const value = localStorage.getItem(SEEN_KEY)
@@ -18,15 +16,14 @@ const readSeen = () => {
   }
 }
 
-const SealIcon = () => (
-  <svg viewBox="0 0 24 24" className="trophy-trigger__seal" aria-hidden="true">
-    <circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
-    <circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" strokeWidth="1" />
-    <path d="M9.3 12.2l1.8 1.8 3.6-3.8" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+const HexIcon = () => (
+  <svg viewBox="0 0 24 24" className="trophy-trigger__hex" aria-hidden="true">
+    <polygon points="12,2 20.5,7 20.5,17 12,22 3.5,17 3.5,7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+    <path d="M8.6 12.3l2.3 2.3 4.5-4.8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 )
 
-// Navbar badge with progress + the achievement book
+// Navbar badge with progress + the achievements panel
 const TrophyCase = () => {
   const { t } = useI18n()
   const { unlocked } = useAchievements()
@@ -59,7 +56,7 @@ const TrophyCase = () => {
     }
   }, [open])
 
-  const openBook = () => {
+  const openPanel = () => {
     setOpen(true)
     setSeen(unlocked.length)
     try {
@@ -71,6 +68,7 @@ const TrophyCase = () => {
 
   const total = ACHIEVEMENTS.length
   const hasNews = seen < 0 || unlocked.length > seen
+  const percent = Math.round((unlocked.length / total) * 100)
 
   return (
     <>
@@ -78,11 +76,11 @@ const TrophyCase = () => {
         ref={triggerRef}
         type="button"
         className={`trophy-trigger${bump ? ' is-bumped' : ''}`}
-        onClick={openBook}
+        onClick={openPanel}
         title={t('achievements.button')}
         aria-label={`${t('achievements.button')}: ${t('achievements.progress', { count: unlocked.length, total })}`}
       >
-        <SealIcon />
+        <HexIcon />
         <span className="trophy-trigger__count">
           {unlocked.length}<span>/{total}</span>
         </span>
@@ -93,36 +91,45 @@ const TrophyCase = () => {
       {open && createPortal(
         <div className="trophy-overlay" onClick={() => setOpen(false)}>
           <div
-            className="stamp-book"
+            className="ach-panel"
             role="dialog"
             aria-modal="true"
-            aria-labelledby="stamp-book-title"
+            aria-labelledby="ach-panel-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <header className="stamp-book__head">
+            <header className="ach-panel__head">
               <div>
-                <h3 id="stamp-book-title">{t('achievements.caseTitle')}</h3>
+                <h3 id="ach-panel-title">{t('achievements.caseTitle')}</h3>
                 <p>{t('achievements.progress', { count: unlocked.length, total })}</p>
               </div>
-              <button ref={closeRef} type="button" className="stamp-book__close" onClick={() => setOpen(false)} aria-label={t('achievements.close')}>
+              <span className="ach-panel__percent">{percent}%</span>
+              <button ref={closeRef} type="button" className="ach-panel__close" onClick={() => setOpen(false)} aria-label={t('achievements.close')}>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 </svg>
               </button>
             </header>
 
-            <ul className="stamp-book__grid">
-              {ACHIEVEMENTS.map((a, i) => {
+            {/* one segment per achievement, like an XP bar */}
+            <div className="ach-panel__bar" aria-hidden="true">
+              {ACHIEVEMENTS.map((a, i) => (
+                <span key={a.id} className={i < unlocked.length ? 'is-filled' : ''} />
+              ))}
+            </div>
+
+            <ul className="ach-panel__grid">
+              {ACHIEVEMENTS.map((a) => {
                 const isUnlocked = unlocked.includes(a.id)
                 return (
-                  <li
-                    key={a.id}
-                    className={`stamp-book__item${isUnlocked ? ' is-unlocked' : ''}`}
-                    style={{ '--ink': a.ink, '--tilt': `${TILTS[i % TILTS.length]}deg` }}
-                  >
-                    <AchievementStamp id={a.id} locked={!isUnlocked} />
-                    <strong>{t(`achievements.list.${a.id}.title`)}</strong>
-                    <small>{t(`achievements.list.${a.id}.desc`)}</small>
+                  <li key={a.id} className={`ach-card rarity--${a.rarity}${isUnlocked ? ' is-unlocked' : ''}`}>
+                    <AchievementBadge id={a.id} locked={!isUnlocked} className="ach-card__badge" />
+                    <div className="ach-card__text">
+                      <span className="ach-card__rarity">
+                        {isUnlocked ? t(`skills.rarity.${a.rarity}`) : t('achievements.locked')}
+                      </span>
+                      <strong>{t(`achievements.list.${a.id}.title`)}</strong>
+                      <small>{t(`achievements.list.${a.id}.desc`)}</small>
+                    </div>
                   </li>
                 )
               })}
