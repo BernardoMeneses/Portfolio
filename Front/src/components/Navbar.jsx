@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { usePreferences } from '../context/Preferences'
 import { useAchievements } from '../context/Achievements'
+import TrophyCase from './TrophyCase'
 import './Styles/Navbar.scss'
 
 const LINKS = [
@@ -62,6 +63,7 @@ const Navbar = () => {
           </ul>
 
           <div className="navbar-prefs">
+            <TrophyCase />
             <button
               type="button"
               className="navbar-pref navbar-lang"

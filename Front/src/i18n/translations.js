@@ -145,10 +145,10 @@ const translations = {
       built: 'Built with React',
       hint: 'psst… try',
       close: 'Close the portfolio',
-      trophies: 'Trophies',
     },
     achievements: {
       unlocked: 'Achievement unlocked',
+      button: 'Achievements',
       caseTitle: 'Trophy case',
       progress: '{count} of {total} unlocked',
       close: 'Close',
@@ -317,10 +317,10 @@ const translations = {
       built: 'Feito com React',
       hint: 'psst… experimenta',
       close: 'Fechar o portefólio',
-      trophies: 'Troféus',
     },
     achievements: {
       unlocked: 'Conquista desbloqueada',
+      button: 'Conquistas',
       caseTitle: 'Vitrine de troféus',
       progress: '{count} de {total} desbloqueadas',
       close: 'Fechar',

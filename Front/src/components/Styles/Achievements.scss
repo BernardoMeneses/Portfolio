@@ -112,29 +112,100 @@ $mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 
 /* ---------- Trophy case ---------- */
 
+// Navbar badge: trophy, progress and a "something new" dot to spark curiosity
 .trophy-trigger {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.9rem;
-  border: 1px solid var(--line);
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px 0 10px;
+  border: 1px solid rgba(#ffb347, 0.45);
   border-radius: 999px;
-  background: transparent;
-  color: $secondary-text;
+  background: linear-gradient(135deg, rgba(#ffb347, 0.14), rgba($accent, 0.12));
+  color: $primary-text;
   font: inherit;
   cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease;
-
-  b {
-    font-family: $mono;
-    color: $primary;
-  }
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover,
   &:focus-visible {
-    color: $primary-text;
-    border-color: $accent;
+    border-color: #ffb347;
+    box-shadow: 0 0 16px rgba(#ffb347, 0.35);
+    transform: translateY(-1px);
     outline: none;
+  }
+
+  &.is-bumped {
+    animation: trophy-bump 0.9s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+}
+
+.trophy-trigger__icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.trophy-trigger__count {
+  font-family: $mono;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.trophy-trigger__bar {
+  width: 38px;
+  height: 5px;
+  border-radius: 99px;
+  background: rgba(127, 127, 127, 0.25);
+  overflow: hidden;
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #ffb347, #ffe08a);
+    transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  @media (max-width: 480px) {
+    display: none;
+  }
+}
+
+.trophy-trigger__dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: $secondary;
+  box-shadow: 0 0 0 2px var(--bg);
+  animation: trophy-dot 1.6s ease-out infinite;
+}
+
+@keyframes trophy-bump {
+  30% {
+    transform: scale(1.25) rotate(-8deg);
+  }
+  60% {
+    transform: scale(0.95) rotate(4deg);
+  }
+}
+
+@keyframes trophy-dot {
+  0% {
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 2px rgba($secondary, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 10px rgba($secondary, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trophy-trigger.is-bumped,
+  .trophy-trigger__dot {
+    animation: none;
   }
 }
 

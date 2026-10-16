@@ -1,6 +1,5 @@
 import React from 'react'
 import { REPLAY_INTRO_EVENT } from './IntroCover'
-import TrophyCase from './TrophyCase'
 import { useI18n } from '../context/Preferences'
 import './Styles/Footer.scss'
 
@@ -19,7 +18,6 @@ const Footer = () => {
         </span>
 
         <div className="site-footer__actions">
-          <TrophyCase />
           <button
             type="button"
             className="site-footer__close"
