@@ -10,6 +10,7 @@ export const REPLAY_INTRO_EVENT = 'bm:replay-intro'
 const UNSTRAP_MS = 380
 const OPEN_MS = 1250
 const LEAVE_MS = 750
+const CALM_LEAVE_MS = 450 // reduced motion: the cover just fades away
 
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
@@ -35,7 +36,8 @@ const rememberOpened = () => {
 const IntroCover = () => {
   const { t } = useI18n()
   const { unlock } = useAchievements()
-  const [visible, setVisible] = useState(() => !prefersReducedMotion() && !alreadyOpened())
+  // Reduced-motion visitors still get the cover, just without the 3D swing (see IntroCover.scss)
+  const [visible, setVisible] = useState(() => !alreadyOpened())
   // idle -> unstrap -> opening -> leaving
   const [stage, setStage] = useState('idle')
   const timers = useRef([])
@@ -55,8 +57,13 @@ const IntroCover = () => {
 
   const open = useCallback(() => {
     if (stage !== 'idle') return
-    setStage('unstrap')
     unlock('opened')
+    if (prefersReducedMotion()) {
+      setStage('leaving')
+      timers.current.push(setTimeout(finish, CALM_LEAVE_MS))
+      return
+    }
+    setStage('unstrap')
     timers.current.push(
       setTimeout(() => setStage('opening'), UNSTRAP_MS),
       setTimeout(() => setStage('leaving'), UNSTRAP_MS + OPEN_MS),
@@ -92,7 +99,6 @@ const IntroCover = () => {
   // "Close the portfolio" from anywhere in the app
   useEffect(() => {
     const replay = () => {
-      if (prefersReducedMotion()) return
       clearTimers()
       window.scrollTo({ top: 0 })
       setStage('idle')

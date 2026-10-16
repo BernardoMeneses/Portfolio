@@ -462,6 +462,39 @@ $hand: 'Caveat', 'Segoe Print', cursive;
   }
 }
 
+/* ---------- Reduced motion: no drop, tilt or 3D swing, just a fade ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .intro {
+    transition-duration: 0.45s;
+  }
+
+  .intro__drop,
+  .intro__monogram,
+  .intro__hint,
+  .intro__hint-dot {
+    animation: none;
+  }
+
+  .intro__scene,
+  .intro--leaving .intro__scene {
+    transform: none;
+  }
+
+  .intro__folder,
+  .intro--leaving .intro__folder,
+  .intro__cover,
+  .intro--idle .intro__folder:hover .intro__cover,
+  .intro--leaving .intro__cover {
+    transform: none;
+    transition: none;
+  }
+
+  .intro--leaving .intro__strap {
+    transition: none;
+  }
+}
+
 /* ---------- Chrome ---------- */
 
 .intro__hint {
