@@ -6,6 +6,10 @@ import './Styles/IntroCover.scss'
 
 const STORAGE_KEY = 'bm:cover-opened'
 export const REPLAY_INTRO_EVENT = 'bm:replay-intro'
+// Fired whenever the cover appears / disappears, so animations behind it can wait
+export const INTRO_OPENED_EVENT = 'bm:intro-opened'
+export const INTRO_CLOSED_EVENT = 'bm:intro-closed'
+export const isIntroOnScreen = () => document.documentElement.hasAttribute('data-intro-open')
 
 // Stage timings (ms) – keep in sync with the transitions in IntroCover.scss
 const UNSTRAP_MS = 380
@@ -71,6 +75,18 @@ const IntroCover = () => {
       setTimeout(finish, UNSTRAP_MS + OPEN_MS + LEAVE_MS)
     )
   }, [stage, finish, unlock])
+
+  // Let the rest of the page know the cover is up (e.g. the Duel Card holds its summon)
+  useEffect(() => {
+    if (!visible) return undefined
+    const root = document.documentElement
+    root.setAttribute('data-intro-open', '')
+    window.dispatchEvent(new Event(INTRO_OPENED_EVENT))
+    return () => {
+      root.removeAttribute('data-intro-open')
+      window.dispatchEvent(new Event(INTRO_CLOSED_EVENT))
+    }
+  }, [visible])
 
   // Lock page scroll while the cover is on screen
   useEffect(() => {

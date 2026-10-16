@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../context/Preferences'
 import { useAchievements } from '../context/Achievements'
+import { INTRO_CLOSED_EVENT, INTRO_OPENED_EVENT, isIntroOnScreen } from './IntroCover'
 import './Styles/DuelCard.scss'
 
 const LEVEL = 8
@@ -10,8 +11,9 @@ const DEF = 2048
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
-// A Yu-Gi-Oh!-style Fusion Monster card (purple frame to match the site). Starts face-down, gets Special Summoned
-// (flips face-up) the first time it scrolls into view, and can be flipped by clicking.
+// A Yu-Gi-Oh!-style Fusion Monster card (purple frame to match the site). Starts face-down and gets
+// Fusion Summoned (flips face-up) once it is in view and the intro cover is out of the way.
+// Closing and reopening the portfolio replays the summon. Clicking flips it.
 const DuelCard = ({ image }) => {
   const { t } = useI18n()
   const { unlock } = useAchievements()
@@ -25,25 +27,49 @@ const DuelCard = ({ image }) => {
 
   useEffect(() => {
     const el = cardRef.current
-    if (!el || summoned.current) return undefined
-    let timer
+    if (!el || prefersReducedMotion()) return undefined
+    let inView = false
+    let startTimer
+    let endTimer
+
+    const trySummon = () => {
+      if (summoned.current || !inView || isIntroOnScreen()) return
+      clearTimeout(startTimer)
+      startTimer = setTimeout(() => {
+        if (summoned.current || !inView || isIntroOnScreen()) return
+        summoned.current = true
+        setFaceUp(true)
+        setSummoning(true)
+        clearTimeout(endTimer)
+        endTimer = setTimeout(() => setSummoning(false), 1600)
+      }, 450)
+    }
+
+    // Cover is back: quietly turn the card face-down so the summon plays again afterwards
+    const resetForReplay = () => {
+      clearTimeout(startTimer)
+      summoned.current = false
+      setSummoning(false)
+      setFaceUp(false)
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting) return
-        observer.disconnect()
-        timer = setTimeout(() => {
-          summoned.current = true
-          setFaceUp(true)
-          setSummoning(true)
-          timer = setTimeout(() => setSummoning(false), 1600)
-        }, 450)
+        inView = entry.isIntersecting
+        trySummon()
       },
       { threshold: 0.6 }
     )
     observer.observe(el)
+    window.addEventListener(INTRO_CLOSED_EVENT, trySummon)
+    window.addEventListener(INTRO_OPENED_EVENT, resetForReplay)
+
     return () => {
       observer.disconnect()
-      clearTimeout(timer)
+      window.removeEventListener(INTRO_CLOSED_EVENT, trySummon)
+      window.removeEventListener(INTRO_OPENED_EVENT, resetForReplay)
+      clearTimeout(startTimer)
+      clearTimeout(endTimer)
     }
   }, [])
 
