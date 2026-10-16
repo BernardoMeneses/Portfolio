@@ -6,6 +6,13 @@ $card-serif-sc: 'Spectral SC', 'Spectral', Georgia, serif;
 $kanji: 'Yu Mincho', 'Hiragino Mincho ProN', 'MS Mincho', 'Noto Serif JP', serif;
 $ink: #17100a;
 $flip-ease: cubic-bezier(0.4, 1.35, 0.5, 1);
+$art-width: calc(76 * var(--u)); // the level stars line up with the art's edges
+
+// Classic card edge: crisp black border, a blurred dark-blue band just inside it,
+// and a dark-blue glow around the card
+$edge-black: inset 0 0 0 calc(1.8 * var(--u)) #040407;
+$edge-blur: inset 0 0 calc(1.6 * var(--u)) calc(2.5 * var(--u)) rgba(16, 30, 92, 0.9);
+$edge-glow: (0 0 calc(4 * var(--u)) rgba(28, 48, 150, 0.75), 0 0 calc(12 * var(--u)) rgba(14, 28, 100, 0.5));
 
 .duel-card-wrap {
   // Card width; --u is 1% of it so the whole card scales as one piece
@@ -79,7 +86,7 @@ $flip-ease: cubic-bezier(0.4, 1.35, 0.5, 1);
   -webkit-backface-visibility: hidden;
   box-shadow:
     0 30px 60px rgba(0, 0, 0, 0.55),
-    0 0 40px rgba($accent, 0.2);
+    $edge-glow;
 }
 
 /* ---------- Front: Fusion Monster frame (violet, tuned to the site palette) ---------- */
@@ -96,10 +103,10 @@ $flip-ease: cubic-bezier(0.4, 1.35, 0.5, 1);
     linear-gradient(160deg, #5a3d99, #3d2475 50%, #241248);
   // thin dark card edge
   box-shadow:
-    inset 0 0 0 calc(1.1 * var(--u)) #140d1d,
-    inset 0 0 0 calc(1.5 * var(--u)) rgba(190, 160, 255, 0.3),
+    $edge-black,
+    $edge-blur,
     0 30px 60px rgba(0, 0, 0, 0.55),
-    0 0 50px rgba($accent, 0.35);
+    $edge-glow;
 }
 
 // Bevelled inset look used by name bar, art and text box
@@ -181,12 +188,14 @@ $flip-ease: cubic-bezier(0.4, 1.35, 0.5, 1);
   text-shadow: 0 0 calc(1 * var(--u)) rgba(200, 160, 255, 0.9);
 }
 
+// Same width as the art and right-aligned, so the first star sits flush with the art's right edge
 .duel-card__stars {
   display: flex;
   justify-content: flex-end;
   gap: calc(0.3 * var(--u));
+  width: $art-width;
   height: calc(6.4 * var(--u));
-  padding-right: calc(1.2 * var(--u));
+  margin: 0 auto;
 }
 
 .duel-card__star {
@@ -221,7 +230,7 @@ $flip-ease: cubic-bezier(0.4, 1.35, 0.5, 1);
 .duel-card__art {
   position: relative;
   flex-shrink: 0;
-  width: calc(76 * var(--u));
+  width: $art-width;
   aspect-ratio: 1;
   margin: 0 auto;
   overflow: hidden;
@@ -393,10 +402,12 @@ $flip-ease: cubic-bezier(0.4, 1.35, 0.5, 1);
   transform: rotateY(180deg) translateZ(1px);
   background: #120a1c;
   box-shadow:
-    inset 0 0 0 calc(1.1 * var(--u)) #1d140d,
+    $edge-black,
+    $edge-blur,
     inset 0 0 0 calc(4 * var(--u)) #3a2416,
     inset 0 0 0 calc(4.6 * var(--u)) #c99a4b,
-    0 30px 60px rgba(0, 0, 0, 0.55);
+    0 30px 60px rgba(0, 0, 0, 0.55),
+    $edge-glow;
 }
 
 .duel-card__vortex {
