@@ -1,4 +1,5 @@
 @use '../../Styles/variables' as *;
+@use '../../Styles/mixins' as *;
 
 $mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 
@@ -51,7 +52,8 @@ $mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
   }
 
   strong {
-    font-size: 0.98rem;
+    @include display-font;
+    font-size: 0.92rem;
   }
 }
 
@@ -167,7 +169,8 @@ $mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
   margin-bottom: $spacing-sm;
 
   h3 {
-    font-size: 1.3rem;
+    @include display-font;
+    font-size: 1.2rem;
   }
 
   p {

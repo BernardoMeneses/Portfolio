@@ -24,6 +24,11 @@
   font-size: 0.7rem;
   opacity: 0.6;
 
+  // Keyboard-only easter egg; on narrow screens it also forced a wider layout viewport
+  @media (max-width: 640px) {
+    display: none;
+  }
+
   kbd {
     min-width: 18px;
     padding: 0 4px;

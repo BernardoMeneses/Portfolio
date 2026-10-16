@@ -294,7 +294,8 @@ $critical: #ff4d4d;
   animation: bughunt-pop 0.4s cubic-bezier(0.3, 1.4, 0.5, 1) both;
 
   h3 {
-    font-size: 1.4rem;
+    @include display-font;
+    font-size: 1.3rem;
   }
 
   p {

@@ -37,9 +37,9 @@
       padding: $spacing-md;
 
       .stat-number {
+        @include display-font;
         display: block;
-        font-size: 2.5rem;
-        font-weight: 700;
+        font-size: 2.3rem;
         background: linear-gradient(135deg, $primary, $accent);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -57,17 +57,30 @@
 
   @media (max-width: 768px) {
     .about-content {
-      grid-template-columns: 1fr;
+      // minmax(0, …) so the stats row can never widen the page
+      grid-template-columns: minmax(0, 1fr);
       gap: $spacing-md;
     }
 
     .about-stats {
       flex-direction: row;
       justify-content: center;
+      gap: $spacing-xs;
 
       .stat-item {
         flex: 1;
-        max-width: 120px;
+        min-width: 0;
+        max-width: 140px;
+        padding: $spacing-sm $spacing-xs;
+
+        .stat-number {
+          font-size: 1.8rem;
+        }
+
+        .stat-label {
+          font-size: 0.75rem;
+          line-height: 1.3;
+        }
       }
     }
   }

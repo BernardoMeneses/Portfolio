@@ -1,4 +1,5 @@
 @use '../../Styles/variables' as *;
+@use '../../Styles/mixins' as *;
 
 $mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 
@@ -70,8 +71,8 @@ $mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 }
 
 .player-card__name {
-  font-size: 1.35rem;
-  font-weight: 700;
+  @include display-font;
+  font-size: 1.3rem;
 }
 
 .player-card__lvl {

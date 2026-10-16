@@ -199,6 +199,7 @@ $rarities: (
 }
 
 .inspector__name {
+  @include display-font;
   font-size: 1.3rem;
   color: var(--rarity);
 }

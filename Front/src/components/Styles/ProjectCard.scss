@@ -1,4 +1,5 @@
 @use '../../Styles/variables' as *;
+@use '../../Styles/mixins' as *;
 
 $mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 $hand: 'Caveat', 'Segoe Print', cursive;
@@ -166,8 +167,8 @@ $ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .folder__title {
-  font-size: 1.25rem;
-  font-weight: 700;
+  @include display-font;
+  font-size: 1.15rem;
   line-height: 1.2;
 }
 
@@ -410,6 +411,7 @@ $ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .dossier__title {
+  @include display-font;
   font-size: clamp(1.6rem, 4vw, 2.3rem);
   line-height: 1.1;
 }

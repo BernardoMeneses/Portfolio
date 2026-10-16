@@ -20,6 +20,11 @@ $text-secondary: var(--text-2);
 $success-color: #00b894;
 $error-color: #ff6b6b;
 
+// Typography
+// Display: arcade-marquee headings. Body: HUD-flavoured but readable.
+$font-display: 'Bungee', 'Impact', sans-serif;
+$font-body: 'Chakra Petch', system-ui, sans-serif;
+
 // Spacing
 $spacing-xs: 0.5rem;
 $spacing-sm: 1rem;

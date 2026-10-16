@@ -1,5 +1,12 @@
 @use './variables' as *;
 
+// Bungee ships a single weight; never let the browser fake a bold
+@mixin display-font {
+  font-family: $font-display;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
 @mixin flex-center {
   display: flex;
   align-items: center;
