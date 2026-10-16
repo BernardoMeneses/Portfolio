@@ -1,10 +1,9 @@
 import express from 'express';
-import { readJsonFile, addItemToFile, writeJsonFile } from '../utils/fileStorage.js';
+import { listEntries, addEntry, removeEntry, hitRateLimit } from '../utils/guestbookStore.js';
 import verifyAdminToken from '../middleware/adminAuth.js';
 
 const router = express.Router();
 
-const FILE = 'guestbook.json';
 const COLORS = ['yellow', 'pink', 'blue', 'green', 'purple'];
 const MAX_NAME = 40;
 const MAX_MESSAGE = 140;
@@ -13,9 +12,6 @@ const PUBLIC_LIMIT = 40;
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX = 3;
 
-// ip -> timestamps of recent posts (in-memory; resets on restart, which is fine for a guestbook)
-const recentPosts = new Map();
-
 const clean = (value, max) =>
   String(value ?? '')
     .replace(/[\u0000-\u001F\u007F]/g, ' ')
@@ -23,27 +19,7 @@ const clean = (value, max) =>
     .trim()
     .slice(0, max);
 
-const loadEntries = () => {
-  const entries = readJsonFile(FILE);
-  return Array.isArray(entries) ? entries : [];
-};
-
 const toPublic = ({ id, name, message, color, createdAt }) => ({ id, name, message, color, createdAt });
-
-const isRateLimited = (ip) => {
-  const now = Date.now();
-  const recent = (recentPosts.get(ip) || []).filter((at) => now - at < RATE_WINDOW_MS);
-  recentPosts.set(ip, recent);
-
-  // Keep the map from growing forever
-  if (recentPosts.size > 5000) {
-    for (const [key, stamps] of recentPosts) {
-      if (!stamps.some((at) => now - at < RATE_WINDOW_MS)) recentPosts.delete(key);
-    }
-  }
-
-  return recent.length >= RATE_MAX;
-};
 
 const sendRouteError = (res, error, fallbackMessage) => {
   res.status(error?.status || 500).json({
@@ -63,9 +39,9 @@ const sendRouteError = (res, error, fallbackMessage) => {
  *       200:
  *         description: List of notes (newest first)
  */
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    res.json(loadEntries().slice(0, PUBLIC_LIMIT).map(toPublic));
+    res.json((await listEntries(PUBLIC_LIMIT)).map(toPublic));
   } catch (error) {
     console.error('Get guestbook error:', error);
     res.status(500).json({ error: 'Erro ao buscar o livro de visitas' });
@@ -108,7 +84,7 @@ router.get('/', (req, res) => {
  *       503:
  *         description: Storage is read-only on this deployment
  */
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const { name, message, color, website } = req.body || {};
 
@@ -128,22 +104,15 @@ router.post('/', (req, res) => {
       return res.status(400).json({ error: 'Links nao sao permitidos', code: 'LINKS_NOT_ALLOWED' });
     }
 
-    if (isRateLimited(req.ip)) {
+    if (await hitRateLimit(req.ip, RATE_MAX, RATE_WINDOW_MS)) {
       return res.status(429).json({ error: 'Demasiadas notas, tenta mais tarde', code: 'RATE_LIMITED' });
     }
 
-    const entry = addItemToFile(FILE, {
+    const entry = await addEntry({
       name: cleanName,
       message: cleanMessage,
       color: COLORS.includes(color) ? color : 'yellow'
-    });
-
-    recentPosts.get(req.ip).push(Date.now());
-
-    const entries = loadEntries();
-    if (entries.length > MAX_STORED) {
-      writeJsonFile(FILE, entries.slice(0, MAX_STORED));
-    }
+    }, MAX_STORED);
 
     res.status(201).json({ entry: toPublic(entry) });
   } catch (error) {
@@ -167,17 +136,12 @@ router.post('/', (req, res) => {
  *       404:
  *         description: Note not found
  */
-router.delete('/:id', verifyAdminToken, (req, res) => {
+router.delete('/:id', verifyAdminToken, async (req, res) => {
   try {
-    const id = Number(req.params.id);
-    const entries = loadEntries();
-    const remaining = entries.filter((entry) => entry.id !== id);
-
-    if (remaining.length === entries.length) {
+    if (!(await removeEntry(Number(req.params.id)))) {
       return res.status(404).json({ error: 'Nota nao encontrada' });
     }
 
-    writeJsonFile(FILE, remaining);
     res.json({ message: 'Nota removida' });
   } catch (error) {
     console.error('Delete guestbook note error:', error);
