@@ -4,7 +4,7 @@ import './Styles/Hero.scss'
 import profileImage from '../assets/eu.jpg'
 import { API_URL } from '../config/api'
 import { useToast } from './ToastProvider'
-import PlayerCard from './PlayerCard'
+import DuelCard from './DuelCard'
 import { useI18n } from '../context/Preferences'
 
 const Hero = () => {
@@ -121,7 +121,7 @@ const Hero = () => {
 
           <div className="hero-visual">
             <div className="avatar-container">
-              <PlayerCard image={heroSrc} />
+              <DuelCard image={heroSrc} />
               <button className="btn-outline download-cv" onClick={downloadCV}>
                 <i className="fas fa-download"></i> {t('hero.downloadCv')}
               </button>
