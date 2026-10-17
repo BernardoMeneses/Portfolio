@@ -11,7 +11,7 @@ const Footer = () => {
   return (
     <footer className="site-footer">
       <div className="container site-footer__inner">
-        <span>© {new Date().getFullYear()} Bernardo Meneses · {t('footer.built')}</span>
+        <span>© {new Date().getFullYear()} Bernardo Meneses</span>
 
         <span className="site-footer__hint">
           {t('footer.hint')} {KONAMI_KEYS.map((key, i) => <kbd key={i}>{key}</kbd>)}
