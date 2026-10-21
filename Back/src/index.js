@@ -42,6 +42,9 @@ const allowedOrigins = new Set([
   'http://localhost:3000',
   'http://localhost:5173',
   'http://localhost:4698',
+  // Production custom domain
+  'https://bernardomeneses.pt',
+  'https://www.bernardomeneses.pt',
   ...configuredOrigins
 ]);
 
